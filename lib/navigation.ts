@@ -1,4 +1,5 @@
 export const navigation = [
+  { title: "Beranda", href: "/" },
   { title: "Wahana", href: "/wahana" },
   { title: "Edukasi", href: "/edukasi" },
   { title: "Fasilitas", href: "/fasilitas" },
