@@ -56,7 +56,7 @@ export default function Booking() {
   };
 
   return (
-    <section className="bg-[#23412D] py-32 text-white">
+    <section className="bg-[#23412D] py-20 sm:py-28 lg:py-32 text-white">
       <Container>
 
         <motion.div

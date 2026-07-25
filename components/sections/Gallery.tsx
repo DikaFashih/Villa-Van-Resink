@@ -16,7 +16,8 @@ const foto = [
 
 export default function Gallery() {
   return (
-    <section className="bg-[#F7F3EC] py-32">
+    <section className="bg-[#F7F3EC] py-20 sm:py-28 lg:py-32">
+      
       <Container>
 
         <SectionTitle

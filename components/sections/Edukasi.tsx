@@ -29,7 +29,7 @@ const edukasi = [
 
 export default function Edukasi() {
   return (
-    <section className="bg-[#F7F3EC] py-32">
+    <section className="bg-[#FBF8F2] py-20 sm:py-28 lg:py-32">
 
     
       <Container>
@@ -41,7 +41,7 @@ export default function Edukasi() {
           center
         />
 
-        <div className="mt-20 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-16 lg:gap-24">
 
           {edukasi.map((item, index) => (
 

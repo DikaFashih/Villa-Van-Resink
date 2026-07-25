@@ -39,10 +39,8 @@ const packages = [
 
 export default function Packages() {
   return (
-    <section
-      id="paket"
-      className="bg-[#f8f5f1] py-32"
-    >
+    <section className="bg-[#FBF8F2] py-20 sm:py-28 lg:py-32">
+      
       <Container>
 
         <SectionTitle

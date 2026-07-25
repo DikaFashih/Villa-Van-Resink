@@ -16,7 +16,7 @@ const ruang = [
 
 export default function Villa() {
   return (
-    <section className="bg-white py-32">
+    <section className="bg-white py-20 sm:py-28 lg:py-32">
       <Container>
 
         <SectionTitle

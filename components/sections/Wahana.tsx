@@ -52,7 +52,7 @@ const wahana = [
 
 export default function Wahana() {
   return (
-    <section className="bg-white py-32">
+    <section className="bg-white py-20 sm:py-28 lg:py-32">
       
       <Container>
 
@@ -62,7 +62,7 @@ export default function Wahana() {
           description="Seperti spesimen dalam katalog kebun raya, setiap wahana di Villa Van Resink punya karakternya sendiri — dari yang memacu adrenalin hingga yang mengajak melambat."
         />
 
-        <div className="mt-20 grid gap-x-10 gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-x-10 gap-y-14 sm:mt-20 sm:gap-y-20 sm:grid-cols-2 lg:grid-cols-3">
 
           {wahana.map((item, index) => (
 

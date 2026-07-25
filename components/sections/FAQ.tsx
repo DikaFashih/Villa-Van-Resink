@@ -38,7 +38,8 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="bg-white py-32">
+    <section className="bg-white py-20 sm:py-28 lg:py-32">
+      
       <Container>
 
         <SectionTitle
