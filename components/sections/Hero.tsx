@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -64,37 +63,9 @@ export default function Hero() {
             untuk pengalaman wisata yang tak terlupakan.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity:0,y:40 }}
-            animate={{ opacity:1,y:0 }}
-            transition={{ delay:.5 }}
-            className="mt-12 flex gap-5"
-          >
-            <button className="rounded-full bg-white px-8 py-4 text-sm uppercase tracking-widest transition hover:bg-neutral-200">
-              Explore Villa
-            </button>
-
-            <button className="rounded-full border border-white px-8 py-4 text-sm uppercase tracking-widest text-white transition hover:bg-white hover:text-black">
-              Booking
-            </button>
-          </motion.div>
-
         </div>
 
       </div>
-
-      {/* Scroll */}
-
-      <motion.div
-        animate={{ y:[0,10,0] }}
-        transition={{
-          duration:1.6,
-          repeat:Infinity
-        }}
-        className="absolute bottom-10 left-1/2 z-20 -translate-x-1/2 text-white"
-      >
-        <ChevronDown size={42}/>
-      </motion.div>
 
     </section>
   );
