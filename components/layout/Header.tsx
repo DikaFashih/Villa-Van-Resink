@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import Container from "../ui/Container";
-import Logo from "./Logo";
+import PageTitle from "./PageTitle";
 import DesktopNav from "./DesktopNav";
 import MenuButton from "./MenuButton";
 import MobileMenu from "./MobileMenu";
@@ -27,10 +27,6 @@ export default function Header() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
 
   const scrolled = isHome ? scrolledPast : true;
 
@@ -70,7 +66,7 @@ export default function Header() {
           }
         `}
         >
-          <Logo />
+          <PageTitle dark={scrolled} />
 
           <DesktopNav dark={scrolled} />
 
