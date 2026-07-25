@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Container from "../ui/Container";
 import { Button } from "../ui/Button";
 
-const NOMOR_WA = "08157728629"; // ganti dengan nomor WA asli
+const NOMOR_WA = "6208157728629"; // ganti dengan nomor WA asli
 
 const paketOptions = [
   "Paket Wisata Harian",
