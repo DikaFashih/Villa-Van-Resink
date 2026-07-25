@@ -6,9 +6,12 @@ import { usePathname } from "next/navigation";
 import Container from "../ui/Container";
 import Logo from "./Logo";
 import DesktopNav from "./DesktopNav";
+import MenuButton from "./MenuButton";
+import MobileMenu from "./MobileMenu";
 
 export default function Header() {
   const [scrolledPast, setScrolledPast] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   const isHome = pathname === "/";
@@ -25,7 +28,10 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // solid di semua halaman kecuali beranda (yang punya hero fullscreen di belakangnya)
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   const scrolled = isHome ? scrolledPast : true;
 
   return (
@@ -55,7 +61,8 @@ export default function Header() {
           rounded-full
           transition-all
           duration-500
-          px-8
+          px-6
+          sm:px-8
           ${
             scrolled
               ? "h-16 bg-white/80 backdrop-blur-xl shadow-xl"
@@ -67,9 +74,21 @@ export default function Header() {
 
           <DesktopNav dark={scrolled} />
 
+          <MenuButton
+            open={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+            dark={scrolled}
+          />
+
         </div>
 
       </Container>
+
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      />
+
     </header>
   );
 }

@@ -1,22 +1,49 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
-
 interface Props {
   open: boolean;
-  toggle: () => void;
+  onClick: () => void;
+  dark?: boolean;
 }
 
 export default function MenuButton({
   open,
-  toggle,
+  onClick,
+  dark = false,
 }: Props) {
   return (
     <button
-      onClick={toggle}
-      className="relative z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neutral-300 bg-white/80 backdrop-blur-lg lg:hidden"
+      onClick={onClick}
+      aria-label={open ? "Tutup menu" : "Buka menu"}
+      className="relative z-50 flex h-10 w-10 flex-col items-center justify-center gap-[6px] lg:hidden"
     >
-      {open ? <X size={22} /> : <Menu size={22} />}
+
+      <span
+        className={`h-[2px] w-6 rounded-full transition-all duration-300 ${
+          open
+            ? "translate-y-[8px] rotate-45 bg-white"
+            : dark
+            ? "bg-[#23412D]"
+            : "bg-white"
+        }`}
+      />
+
+      <span
+        className={`h-[2px] w-6 rounded-full transition-all duration-300 ${
+          open ? "opacity-0" : dark ? "bg-[#23412D]" : "bg-white"
+        }`}
+      />
+
+      <span
+        className={`h-[2px] w-6 rounded-full transition-all duration-300 ${
+          open
+            ? "-translate-y-[8px] -rotate-45 bg-white"
+            : dark
+            ? "bg-[#23412D]"
+            : "bg-white"
+        }`}
+      />
+
     </button>
   );
 }
