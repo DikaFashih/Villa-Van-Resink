@@ -10,6 +10,11 @@ interface Props {
   onClose: () => void;
 }
 
+const allItems = [
+  { title: "Beranda", href: "/" },
+  ...navigation,
+];
+
 export default function MobileMenu({ open, onClose }: Props) {
 
   const pathname = usePathname();
@@ -22,12 +27,13 @@ export default function MobileMenu({ open, onClose }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: .35 }}
-          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 bg-[#23412D] lg:hidden"
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-7 bg-[#23412D] lg:hidden"
         >
 
-          {navigation.map((item, index) => {
+          {allItems.map((item, index) => {
 
             const isActive = pathname === item.href;
+            const isButton = "isButton" in item && item.isButton;
 
             return (
 
@@ -42,9 +48,9 @@ export default function MobileMenu({ open, onClose }: Props) {
                   href={item.href}
                   onClick={onClose}
                   className={`font-heading transition-colors ${
-                    item.isButton
+                    isButton
                       ? "rounded-full border border-white/40 px-8 py-3 text-2xl text-white"
-                      : `text-4xl ${
+                      : `text-3xl sm:text-4xl ${
                           isActive
                             ? "text-[#C9A66B]"
                             : "text-white hover:text-[#C9A66B]"
