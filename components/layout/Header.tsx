@@ -30,9 +30,8 @@ export default function Header() {
 
   const scrolled = isHome ? scrolledPast : true;
 
-  // sembunyikan navbar HANYA di desktop, sebelum scroll di Beranda.
-  // di HP, tombol menu harus selalu bisa diakses.
-  const hiddenOnDesktop = isHome && !scrolledPast;
+  // di Beranda, navbar disembunyikan total (termasuk di HP) sebelum scroll
+  const hidden = isHome && !scrolledPast;
 
   return (
     <header
@@ -50,9 +49,9 @@ export default function Header() {
           : "py-7"
       }
       ${
-        hiddenOnDesktop
-          ? "lg:-translate-y-full lg:opacity-0 lg:pointer-events-none"
-          : "lg:translate-y-0 lg:opacity-100"
+        hidden
+          ? "-translate-y-full opacity-0 pointer-events-none"
+          : "translate-y-0 opacity-100"
       }
     `}
     >

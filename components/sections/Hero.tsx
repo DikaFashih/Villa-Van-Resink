@@ -2,15 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Compass, Tent, HeartHandshake, GraduationCap } from "lucide-react";
 import { Button } from "../ui/Button";
-
-const highlight = [
-  { title: "Wahana", desc: "6 aktivitas seru", href: "/wahana", icon: Compass },
-  { title: "Camping", desc: "Bermalam di alam", href: "/wahana", icon: Tent },
-  { title: "Wedding", desc: "Hingga 300 tamu", href: "/paket", icon: HeartHandshake },
-  { title: "Edukasi", desc: "Untuk rombongan", href: "/edukasi", icon: GraduationCap },
-];
 
 export default function Hero() {
   return (
@@ -36,7 +28,7 @@ export default function Hero() {
 
       {/* Content */}
 
-      <div className="relative z-20 flex h-full flex-col justify-center pb-28 pt-24 sm:pb-32">
+      <div className="relative z-20 flex h-full items-center">
 
         <div className="mx-auto w-full max-w-7xl px-6 sm:px-8">
 
@@ -85,7 +77,7 @@ export default function Hero() {
               </Button>
             </a>
 
-            <a href="/fasilitas">
+            <a href="/aktivitas">
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-[#23412D]">
                 Jelajahi Fasilitas
               </Button>
@@ -94,52 +86,6 @@ export default function Hero() {
           </motion.div>
 
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: .6, duration: .7 }}
-          className="mx-auto mt-16 w-full max-w-7xl px-6 sm:px-8"
-        >
-
-          <div className="grid grid-cols-2 gap-3 rounded-[20px] border border-white/20 bg-white/10 p-3 backdrop-blur-md sm:grid-cols-4 sm:gap-4 sm:p-4">
-
-            {highlight.map((item) => {
-
-              const Icon = item.icon;
-
-              return (
-                <a
-                
-                  key={item.title}
-                  href={item.href}
-                  className="group flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-white/10 sm:flex-col sm:items-start sm:gap-0 sm:px-4"
-                >
-
-                  <Icon
-                    size={22}
-                    strokeWidth={1.5}
-                    className="shrink-0 text-white/90 sm:mb-3"
-                  />
-
-                  <div>
-                    <p className="font-heading text-base text-white sm:text-lg">
-                      {item.title}
-                    </p>
-                    <p className="text-xs text-white/60 sm:mt-1">
-                      {item.desc}
-                    </p>
-                  </div>
-
-                </a>
-
-              );
-
-            })}
-
-          </div>
-
-        </motion.div>
 
       </div>
 
