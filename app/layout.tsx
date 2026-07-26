@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Libre_Baskerville, Jost } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/sections/Footer";
@@ -47,11 +48,11 @@ export default function RootLayout({
         `}
       >
 
-        <Header />
-
-        {children}
-
-        <Footer />
+        <MotionConfig reducedMotion="user">
+  <Header />
+  {children}
+  <Footer />
+</MotionConfig>
 
       </body>
     </html>
