@@ -1,11 +1,8 @@
 export const navigation = [
-  { title: "Beranda", href: "/" },
-  { title: "Wahana", href: "/wahana" },
-  { title: "Edukasi", href: "/edukasi" },
-  { title: "Fasilitas", href: "/fasilitas" },
+  { title: "Aktivitas", href: "/aktivitas" },
   { title: "Paket", href: "/paket" },
-  { title: "Villa Van Resink", href: "/villa-van-resink" },
-  { title: "FAQ", href: "/faq" },
+  { title: "Fasilitas", href: "/fasilitas" },
   { title: "Gallery", href: "/gallery" },
+  { title: "FAQ", href: "/faq" },
   { title: "Booking", href: "/booking", isButton: true },
 ];

@@ -30,6 +30,9 @@ export default function Header() {
 
   const scrolled = isHome ? scrolledPast : true;
 
+  // di Beranda, sebelum scroll: navbar disembunyikan total
+  const hidden = isHome && !scrolledPast;
+
   return (
     <header
       className={`
@@ -44,6 +47,11 @@ export default function Header() {
         scrolled
           ? "py-3"
           : "py-7"
+      }
+      ${
+        hidden
+          ? "-translate-y-full opacity-0 pointer-events-none"
+          : "translate-y-0 opacity-100"
       }
     `}
     >

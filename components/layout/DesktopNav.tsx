@@ -8,7 +8,7 @@ interface Props {
 
 export default function DesktopNav({ dark = false }: Props) {
   return (
-    <nav className="hidden items-center gap-8 lg:flex">
+    <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
       <NavLinks dark={dark} />
     </nav>
   );

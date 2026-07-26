@@ -30,10 +30,7 @@ const fitur = [
 
 export default function Wedding() {
   return (
-    <section
-      id="wedding"
-      className="bg-[#23412D] py-24 text-white sm:py-32"
-    >
+    <section className="bg-[#E1E100] py-20 sm:py-28 lg:py-32 text-[#23412D]">
 
       <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:items-center lg:gap-20">
 
@@ -42,7 +39,7 @@ export default function Wedding() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: .7 }}
-          className="relative h-[280px] overflow-hidden rounded-[6px] border border-white/15 sm:h-[420px]"
+          className="relative h-[280px] overflow-hidden rounded-[6px] border border-[#23412D]/20 sm:h-[420px]"
         >
           <Image
             src="/images/wedding/venue.webp"
@@ -60,7 +57,7 @@ export default function Wedding() {
           transition={{ duration: .7, delay: .1 }}
         >
 
-          <p className="text-xs uppercase tracking-[0.35em] text-white/60">
+          <p className="text-xs uppercase tracking-[0.35em] text-[#23412D]/70">
             Momen Sekali Seumur Hidup
           </p>
 
@@ -68,7 +65,7 @@ export default function Wedding() {
             Wedding Venue
           </h2>
 
-          <p className="mt-6 max-w-lg leading-8 text-white/80">
+          <p className="mt-6 max-w-lg leading-8 text-[#23412D]/80">
             Rayakan momen spesial dengan latar villa kolonial, taman hijau,
             dan udara sejuk Kaliurang — ruang yang menyatu dengan alam,
             tanpa perlu dekorasi berlebihan.
@@ -84,7 +81,7 @@ export default function Wedding() {
 
                 <div key={item.title} className="flex gap-4">
 
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/25 text-white/90">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#23412D]/30 text-[#23412D]">
                     <Icon size={18} strokeWidth={1.5} />
                   </div>
 
@@ -92,7 +89,7 @@ export default function Wedding() {
                     <p className="font-heading text-lg leading-snug">
                       {item.title}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-white/65">
+                    <p className="mt-1 text-sm leading-6 text-[#23412D]/70">
                       {item.desc}
                     </p>
                   </div>
@@ -105,14 +102,9 @@ export default function Wedding() {
 
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a href="/paket">
-              <Button size="lg" className="bg-white text-[#23412D] hover:bg-neutral-200">
-                Lihat Paket Wedding
-              </Button>
-            </a>
+          <div className="mt-10">
             <a href="/booking">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-[#23412D]">
+              <Button size="lg" className="bg-[#23412D] text-white hover:bg-[#1a3022]">
                 Konsultasi Gratis
               </Button>
             </a>

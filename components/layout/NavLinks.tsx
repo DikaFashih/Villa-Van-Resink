@@ -41,6 +41,7 @@ export default function NavLinks({
             href={item.href}
             onClick={onClick}
             className={`
+              relative
               text-sm
               uppercase
               tracking-[0.2em]
@@ -57,6 +58,10 @@ export default function NavLinks({
             `}
           >
             {item.title}
+
+            {isActive && (
+              <span className="absolute -bottom-1.5 left-0 h-px w-full bg-current" />
+            )}
           </Link>
         );
 

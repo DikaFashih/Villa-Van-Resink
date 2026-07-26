@@ -1,6 +1,6 @@
 import Hero from "@/components/sections/Hero";
 import Intro from "@/components/sections/Intro";
-import Wedding from "@/components/sections/Wedding";
+import Villa from "@/components/sections/Villa";
 
 export default function HomePage() {
   return (
@@ -10,7 +10,7 @@ export default function HomePage() {
 
       <Intro />
 
-      <Wedding />
+      <Villa />
 
     </main>
   );

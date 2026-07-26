@@ -41,19 +41,11 @@ const wahana = [
     image: "/images/wahana/05.webp",
     tall: true,
   },
-  {
-    title: "Mandi Busa Ceria",
-    category: "Keluarga",
-    desc: "Serunya bermain busa putih ala salju — favorit anak-anak setiap akhir pekan.",
-    image: "/images/wahana/06.webp",
-    tall: false,
-  },
 ];
 
 export default function Wahana() {
   return (
     <section className="bg-white py-20 sm:py-28 lg:py-32">
-      
       <Container>
 
         <SectionTitle
@@ -78,14 +70,12 @@ export default function Wahana() {
               className="group relative"
             >
 
-              {/* specimen tag */}
               <div className="absolute -left-3 -top-3 z-10 -rotate-3 rounded-sm border border-[#8A6E4A]/40 bg-[#FBF8F2] px-3 py-1 shadow-sm transition-transform duration-500 group-hover:rotate-0">
                 <span className="font-heading text-xs tracking-[0.25em] text-[#8A6E4A]">
                   No. {String(index + 1).padStart(2, "0")}
                 </span>
               </div>
 
-              {/* framed photo */}
               <div
                 className={`relative overflow-hidden rounded-[4px] border border-[#8A6E4A]/25 p-1.5 ${
                   item.tall ? "h-[460px]" : "h-[360px]"
