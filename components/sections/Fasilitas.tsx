@@ -3,12 +3,10 @@
 import { motion } from "framer-motion";
 import {
   Droplets,
-  Baby,
   Landmark,
   Car,
   Coffee,
   Users,
-  HeartPulse,
   Trees,
 } from "lucide-react";
 import Container from "../ui/Container";
@@ -19,11 +17,6 @@ const fasilitas = [
     title: "Toilet Umum",
     desc: "Tersedia di beberapa titik, bersih dan terawat.",
     icon: Droplets,
-  },
-  {
-    title: "Ruang Laktasi",
-    desc: "Ruang privat dan nyaman untuk ibu menyusui.",
-    icon: Baby,
   },
   {
     title: "Musholla",
@@ -46,11 +39,6 @@ const fasilitas = [
     icon: Users,
   },
   {
-    title: "Standar P3K",
-    desc: "Petugas dan perlengkapan medis dasar selalu siap siaga.",
-    icon: HeartPulse,
-  },
-  {
     title: "Outbound Zone",
     desc: "Ruang terbuka untuk kegiatan kelompok dan permainan tim.",
     icon: Trees,
@@ -60,13 +48,12 @@ const fasilitas = [
 export default function Fasilitas() {
   return (
     <section className="bg-[#F7F3EC] py-20 sm:py-28 lg:py-32">
-      
       <Container>
 
         <SectionTitle
           eyebrow="Papan Petunjuk"
           title="Fasilitas Pendukung"
-          description="Delapan titik layanan yang memastikan kunjungan Anda tetap nyaman, dari datang hingga pulang."
+          description="Enam titik layanan yang memastikan kunjungan Anda tetap nyaman, dari datang hingga pulang."
         />
 
         <motion.div
