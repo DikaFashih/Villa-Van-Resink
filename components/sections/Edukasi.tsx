@@ -1,77 +1,80 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 
 const edukasi = [
-  {
-    title: "Wisata Edukasi Tanaman",
-    desc: "Mengenal ragam flora botanical garden beserta manfaatnya.",
-    icon: "🌱",
-  },
-  {
-    title: "Heritage & Sejarah Kolonial",
-    desc: "Napak tilas sejarah bangunan kolonial Villa Van Resink.",
-    icon: "🏛️",
-  },
-  {
-    title: "Workshop Berkebun",
-    desc: "Praktik langsung menanam dan merawat tanaman bersama pemandu.",
-    icon: "🪴",
-  },
-  {
-    title: "Study Tour Sekolah",
-    desc: "Paket kunjungan edukatif khusus untuk rombongan pelajar.",
-    icon: "🎒",
-  },
+  { numeral: "I", title: "Wisata Edukasi Tanaman", desc: "Menyusuri lorong-lorong taman botani sambil mengenal nama, asal, dan khasiat tiap spesies yang tumbuh di sini — dipandu langsung oleh tim kebun.", image: "/images/edukasi/01.webp" },
+  { numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/02.webp" },
+  { numeral: "III", title: "Workshop Berkebun", desc: "Turun tangan langsung — mencangkok, menanam, dan merawat bibit sendiri, dibawa pulang sebagai kenang-kenangan hidup.", image: "/images/edukasi/03.webp" },
+  { numeral: "IV", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/04.webp" },
 ];
 
 export default function Edukasi() {
   return (
     <section className="bg-[#FBF8F2] py-20 sm:py-28 lg:py-32">
-
-    
       <Container>
 
         <SectionTitle
-          eyebrow="Belajar & Berkembang"
+          eyebrow="Catatan Lapangan"
           title="Program Edukasi"
-          description="Wisata sekaligus pembelajaran, cocok untuk keluarga, sekolah, maupun komunitas."
-          center
+          description="Empat halaman dari jurnal kebun kami — pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
         />
 
-        <div className="flex flex-col gap-16 lg:gap-24">
+        <div className="relative mt-24">
 
-          {edukasi.map((item, index) => (
+          <div className="pointer-events-none absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-[#8A6E4A]/20 lg:block" />
 
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: .6,
-                delay: index * .08,
-              }}
-              className="rounded-3xl bg-white p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl"
-            >
+          <div className="flex flex-col gap-16 lg:gap-24">
 
-              <div className="text-5xl">
-                {item.icon}
-              </div>
+            {edukasi.map((item, index) => {
 
-              <h3 className="mt-6 font-heading text-2xl">
-                {item.title}
-              </h3>
+              const reversed = index % 2 === 1;
 
-              <p className="mt-4 leading-7 text-neutral-600">
-                {item.desc}
-              </p>
+              return (
 
-            </motion.div>
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: .7 }}
+                  className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${reversed ? "lg:[&>*:first-child]:order-2" : ""}`}
+                >
 
-          ))}
+                  <div className="relative h-[320px] overflow-hidden rounded-[6px] border border-[#8A6E4A]/25 p-1.5 sm:h-[400px]">
+                    <div className="relative h-full w-full overflow-hidden rounded-[3px]">
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={reversed ? "lg:pr-6" : "lg:pl-6"}>
+
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#8A6E4A]/50">
+                      <span className="font-heading text-lg text-[#8A6E4A]">{item.numeral}</span>
+                    </div>
+
+                    <h3 className="mt-6 font-heading text-4xl text-[#2F2B27]">{item.title}</h3>
+                    <div className="mt-4 h-px w-12 bg-[#8A6E4A]/50" />
+                    <p className="mt-5 max-w-md leading-8 text-neutral-600">{item.desc}</p>
+
+                  </div>
+
+                </motion.div>
+
+              );
+
+            })}
+
+          </div>
 
         </div>
 

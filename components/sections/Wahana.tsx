@@ -6,41 +6,11 @@ import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 
 const wahana = [
-  {
-    title: "Camping Ground",
-    category: "Bermalam",
-    desc: "Rasakan dinginnya udara pegunungan sembari mendirikan tenda di bawah pohon-pohon pinus tua.",
-    image: "/images/wahana/01.webp",
-    tall: false,
-  },
-  {
-    title: "Flying Fox",
-    category: "Adrenalin",
-    desc: "Meluncur menyisir kanopi taman botani dengan panorama Merapi di kejauhan.",
-    image: "/images/wahana/02.webp",
-    tall: true,
-  },
-  {
-    title: "Green House",
-    category: "Botani",
-    desc: "Koleksi tumbuhan langka dari berbagai penjuru nusantara, terawat dalam rumah kaca kolonial.",
-    image: "/images/wahana/03.webp",
-    tall: false,
-  },
-  {
-    title: "Sky Rope Bridge",
-    category: "Adrenalin",
-    desc: "Uji keseimbangan menyeberangi jaring tali di antara pepohonan tinggi.",
-    image: "/images/wahana/04.webp",
-    tall: false,
-  },
-  {
-    title: "Panahan",
-    category: "Ketangkasan",
-    desc: "Latih fokus dan ketepatan bersama instruktur berpengalaman di area terbuka.",
-    image: "/images/wahana/05.webp",
-    tall: true,
-  },
+  { title: "Camping Ground", category: "Bermalam", desc: "Rasakan dinginnya udara pegunungan sembari mendirikan tenda di bawah pohon-pohon pinus tua.", image: "/images/wahana/01.webp", tall: false },
+  { title: "Flying Fox", category: "Adrenalin", desc: "Meluncur menyisir kanopi taman botani dengan panorama Merapi di kejauhan.", image: "/images/wahana/02.webp", tall: true },
+  { title: "Green House", category: "Botani", desc: "Koleksi tumbuhan langka dari berbagai penjuru nusantara, terawat dalam rumah kaca kolonial.", image: "/images/wahana/03.webp", tall: false },
+  { title: "Sky Rope Bridge", category: "Adrenalin", desc: "Uji keseimbangan menyeberangi jaring tali di antara pepohonan tinggi.", image: "/images/wahana/04.webp", tall: false },
+  { title: "Panahan", category: "Ketangkasan", desc: "Latih fokus dan ketepatan bersama instruktur berpengalaman di area terbuka.", image: "/images/wahana/05.webp", tall: true },
 ];
 
 export default function Wahana() {
@@ -62,11 +32,8 @@ export default function Wahana() {
               key={item.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: .6,
-                delay: (index % 3) * .1,
-              }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: .6, delay: (index % 3) * .1 }}
               className="group relative"
             >
 
@@ -76,11 +43,7 @@ export default function Wahana() {
                 </span>
               </div>
 
-              <div
-                className={`relative overflow-hidden rounded-[4px] border border-[#8A6E4A]/25 p-1.5 ${
-                  item.tall ? "h-[460px]" : "h-[360px]"
-                }`}
-              >
+              <div className={`relative overflow-hidden rounded-[4px] border border-[#8A6E4A]/25 p-1.5 ${item.tall ? "h-[460px]" : "h-[360px]"}`}>
                 <div className="relative h-full w-full overflow-hidden rounded-[2px]">
                   <Image
                     src={item.image}
@@ -92,19 +55,10 @@ export default function Wahana() {
                 </div>
               </div>
 
-              <p className="mt-6 text-[11px] uppercase tracking-[0.3em] text-[#8A6E4A]">
-                {item.category}
-              </p>
-
-              <h3 className="mt-2 font-heading text-3xl text-[#2F2B27]">
-                {item.title}
-              </h3>
-
+              <p className="mt-6 text-[11px] uppercase tracking-[0.3em] text-[#8A6E4A]">{item.category}</p>
+              <h3 className="mt-2 font-heading text-3xl text-[#2F2B27]">{item.title}</h3>
               <div className="mt-4 h-px w-10 bg-[#8A6E4A]/50 transition-all duration-500 group-hover:w-16" />
-
-              <p className="mt-4 leading-7 text-neutral-600">
-                {item.desc}
-              </p>
+              <p className="mt-4 leading-7 text-neutral-600">{item.desc}</p>
 
             </motion.div>
 

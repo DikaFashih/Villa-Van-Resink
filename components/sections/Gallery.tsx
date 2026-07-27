@@ -11,13 +11,11 @@ const foto = [
   { src: "/images/gallery/3.webp", rotate: "-rotate-1", alt: "Aktivitas wahana pengunjung" },
   { src: "/images/gallery/4.webp", rotate: "rotate-2", alt: "Suasana wedding venue" },
   { src: "/images/gallery/5.webp", rotate: "-rotate-1", alt: "Interior kamar heritage" },
-  { src: "/images/gallery/6.webp", rotate: "rotate-1", alt: "Anak-anak bermain di taman" },
 ];
 
 export default function Gallery() {
   return (
     <section className="bg-[#F7F3EC] py-20 sm:py-28 lg:py-32">
-      
       <Container>
 
         <SectionTitle
@@ -34,13 +32,12 @@ export default function Gallery() {
               key={item.src}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: .6, delay: (index % 3) * .1 }}
               className={`group relative ${item.rotate} transition-transform duration-500 hover:rotate-0 hover:z-10`}
             >
 
               <div className="border-8 border-white bg-white shadow-[0_10px_25px_-8px_rgba(0,0,0,0.25)]">
-
                 <div className="relative aspect-[4/5] w-full overflow-hidden">
                   <Image
                     src={item.src}
@@ -50,7 +47,6 @@ export default function Gallery() {
                     className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
-
               </div>
 
               <div className="absolute -top-3 left-1/2 h-6 w-6 -translate-x-1/2 rounded-full bg-[#8A6E4A]/20 shadow-inner" />

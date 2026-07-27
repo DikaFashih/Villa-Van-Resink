@@ -29,7 +29,7 @@ export default function Villa() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: .7 }}
             className="text-xl leading-9 text-neutral-700 first-letter:float-left first-letter:mr-3 first-letter:font-heading first-letter:text-7xl first-letter:leading-[0.8] first-letter:text-[#8A6E4A]"
           >
@@ -44,19 +44,11 @@ export default function Villa() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: .7, delay: .15 }}
-            className="grid grid-cols-2 gap-4"
+            className="relative h-80 overflow-hidden rounded-[4px] border border-[#8A6E4A]/25 sm:h-[420px]"
           >
-            <div className="relative col-span-2 h-64 overflow-hidden rounded-[4px] border border-[#8A6E4A]/25">
-              <Image src="/images/villa/facade.webp" alt="Fasad Villa Van Resink" fill className="object-cover" />
-            </div>
-            <div className="relative h-40 overflow-hidden rounded-[4px] border border-[#8A6E4A]/25">
-              <Image src="/images/villa/detail-1.webp" alt="Detail interior villa" fill className="object-cover" />
-            </div>
-            <div className="relative h-40 overflow-hidden rounded-[4px] border border-[#8A6E4A]/25">
-              <Image src="/images/villa/detail-2.webp" alt="Detail jendela villa" fill className="object-cover" />
-            </div>
+            <Image src="/images/villa.webp" alt="Villa Van Resink" fill className="object-cover" />
           </motion.div>
 
         </div>
