@@ -12,7 +12,7 @@ interface Props {
 }
 
 const allItems = [
-  { title: "Beranda", href: "/" },
+  { title: "Villa Van Resink", href: "/" },
   ...navigation,
 ];
 
