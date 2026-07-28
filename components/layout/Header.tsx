@@ -30,69 +30,69 @@ export default function Header() {
 
   const scrolled = isHome ? scrolledPast : true;
 
-  // di Beranda, navbar disembunyikan total (termasuk di HP) sebelum scroll
   const hidden = isHome && !scrolledPast;
 
   return (
-    <header
-      className={`
-      fixed
-      top-0
-      left-0
-      w-full
-      z-50
-      transition-all
-      duration-500
-      ${
-        scrolled
-          ? "py-3"
-          : "py-7"
-      }
-      ${
-        hidden
-          ? "-translate-y-full opacity-0 pointer-events-none"
-          : "translate-y-0 opacity-100"
-      }
-    `}
-    >
-      <Container>
+    <>
+      <header
+        className={`
+        fixed
+        top-0
+        left-0
+        w-full
+        z-50
+        transition-all
+        duration-500
+        ${
+          scrolled
+            ? "py-3"
+            : "py-7"
+        }
+        ${
+          hidden
+            ? "-translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100"
+        }
+      `}
+      >
+        <Container>
 
-        <div
-          className={`
-          flex
-          items-center
-          justify-between
-          rounded-full
-          transition-all
-          duration-500
-          px-6
-          sm:px-8
-          ${
-            scrolled
-              ? "h-16 bg-white/80 backdrop-blur-xl shadow-xl"
-              : "h-20 bg-transparent"
-          }
-        `}
-        >
-          <PageTitle dark={scrolled} />
+          <div
+            className={`
+            flex
+            items-center
+            justify-between
+            rounded-full
+            transition-all
+            duration-500
+            px-6
+            sm:px-8
+            ${
+              scrolled
+                ? "h-16 bg-white/80 backdrop-blur-xl shadow-xl"
+                : "h-20 bg-transparent"
+            }
+          `}
+          >
+            <PageTitle dark={scrolled} />
 
-          <DesktopNav dark={scrolled} />
+            <DesktopNav dark={scrolled} />
 
-          <MenuButton
-            open={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-            dark={scrolled}
-          />
+            <MenuButton
+              open={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+              dark={scrolled}
+            />
 
-        </div>
+          </div>
 
-      </Container>
+        </Container>
+      </header>
 
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-
-    </header>
+    </>
   );
 }
