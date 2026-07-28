@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,6 +20,13 @@ export default function MobileMenu({ open, onClose }: Props) {
 
   const pathname = usePathname();
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -27,7 +35,7 @@ export default function MobileMenu({ open, onClose }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: .35 }}
-          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-7 bg-[#23412D] lg:hidden"
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 overflow-y-auto bg-[#23412D] py-24 lg:hidden"
         >
 
           {allItems.map((item, index) => {
@@ -49,8 +57,8 @@ export default function MobileMenu({ open, onClose }: Props) {
                   onClick={onClose}
                   className={`font-heading transition-colors ${
                     isButton
-                      ? "rounded-full border border-white/40 px-8 py-3 text-2xl text-white"
-                      : `text-3xl sm:text-4xl ${
+                      ? "rounded-full border border-white/40 px-8 py-3 text-xl text-white"
+                      : `text-2xl sm:text-3xl ${
                           isActive
                             ? "text-[#C9A66B]"
                             : "text-white hover:text-[#C9A66B]"

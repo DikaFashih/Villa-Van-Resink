@@ -47,6 +47,7 @@ export default function NavLinks({
               tracking-[0.2em]
               transition-all
               duration-300
+              pb-1.5
 
               ${
                 isActive
@@ -59,9 +60,20 @@ export default function NavLinks({
           >
             {item.title}
 
-            {isActive && (
-              <span className="absolute -bottom-1.5 left-0 h-px w-full bg-current" />
-            )}
+            <span
+              className={`
+                absolute
+                bottom-0
+                left-0
+                h-px
+                bg-current
+                transition-all
+                duration-300
+                ease-out
+
+                ${isActive ? "w-full" : "w-0"}
+              `}
+            />
           </Link>
         );
 

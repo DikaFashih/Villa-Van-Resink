@@ -115,130 +115,120 @@ export default function Booking() {
           </div>
         </div>
 
-        <div className="relative mx-auto mt-10 grid max-w-5xl gap-8 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch lg:gap-0">
+        <motion.form
+          onSubmit={handleSubmit}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: .7 }}
+          className="mx-auto mt-10 w-full max-w-2xl rounded-[20px] border border-white/15 bg-[#1c3524] p-8 sm:p-10"
+        >
 
-          <motion.form
-            onSubmit={handleSubmit}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.15 }}
-            transition={{ duration: .7 }}
-            className="rounded-[20px] border border-white/15 bg-[#1c3524] p-8 sm:p-10 lg:rounded-r-none"
-          >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white">
+              <FileText size={18} strokeWidth={1.5} />
+            </div>
+            <p className="font-heading text-2xl">Isi Formulir Booking</p>
+          </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white">
-                <FileText size={18} strokeWidth={1.5} />
-              </div>
-              <p className="font-heading text-2xl">Isi Formulir Booking</p>
+          <p className="mt-4 text-sm leading-6 text-white/60">
+            Lengkapi formulir di bawah untuk mengecek ketersediaan dan mendapatkan penawaran terbaik.
+          </p>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+
+            <div className="sm:col-span-2">
+              <label className="text-xs uppercase tracking-[0.2em] text-white/60">Nama Lengkap</label>
+              <input
+                required
+                type="text"
+                name="nama"
+                value={form.nama}
+                onChange={handleChange}
+                placeholder="Nama Anda"
+                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 outline-none transition focus:border-white/50"
+              />
             </div>
 
-            <p className="mt-4 text-sm leading-6 text-white/60">
-              Lengkapi formulir di bawah untuk mengecek ketersediaan dan mendapatkan penawaran terbaik.
-            </p>
+            <div>
+              <label className="text-xs uppercase tracking-[0.2em] text-white/60">Check-in</label>
+              <input
+                required
+                type="date"
+                name="checkIn"
+                value={form.checkIn}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
+              />
+            </div>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div>
+              <label className="text-xs uppercase tracking-[0.2em] text-white/60">Check-out</label>
+              <input
+                required
+                type="date"
+                name="checkOut"
+                value={form.checkOut}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
+              />
+            </div>
 
-              <div className="sm:col-span-2">
-                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Nama Lengkap</label>
+            <div>
+              <label className="text-xs uppercase tracking-[0.2em] text-white/60">Jumlah Orang</label>
+              <input
+                required
+                type="number"
+                min={1}
+                max={40}
+                name="jumlah"
+                value={form.jumlah}
+                onChange={handleChange}
+                placeholder="Maks. 40 orang"
+                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 outline-none transition focus:border-white/50"
+              />
+            </div>
+
+            <div className={form.paket === "Lainnya" ? "" : "sm:col-span-2"}>
+              <label className="text-xs uppercase tracking-[0.2em] text-white/60">Pilih Paket</label>
+              <select
+                name="paket"
+                value={form.paket}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
+              >
+                {paketOptions.map((p) => (
+                  <option key={p} value={p} className="text-[#23412D]">{p}</option>
+                ))}
+              </select>
+            </div>
+
+            {form.paket === "Lainnya" && (
+              <div>
+                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Sebutkan Kebutuhan Anda</label>
                 <input
                   required
                   type="text"
-                  name="nama"
-                  value={form.nama}
+                  name="paketLainnya"
+                  value={form.paketLainnya}
                   onChange={handleChange}
-                  placeholder="Nama Anda"
+                  placeholder="Contoh: Gathering kantor 25 orang"
                   className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 outline-none transition focus:border-white/50"
                 />
               </div>
+            )}
 
-              <div>
-                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Check-in</label>
-                <input
-                  required
-                  type="date"
-                  name="checkIn"
-                  value={form.checkIn}
-                  onChange={handleChange}
-                  className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Check-out</label>
-                <input
-                  required
-                  type="date"
-                  name="checkOut"
-                  value={form.checkOut}
-                  onChange={handleChange}
-                  className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Jumlah Orang</label>
-                <input
-                  required
-                  type="number"
-                  min={1}
-                  max={40}
-                  name="jumlah"
-                  value={form.jumlah}
-                  onChange={handleChange}
-                  placeholder="Maks. 40 orang"
-                  className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 outline-none transition focus:border-white/50"
-                />
-              </div>
-
-              <div className={form.paket === "Lainnya" ? "" : "sm:col-span-2"}>
-                <label className="text-xs uppercase tracking-[0.2em] text-white/60">Pilih Paket</label>
-                <select
-                  name="paket"
-                  value={form.paket}
-                  onChange={handleChange}
-                  className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
-                >
-                  {paketOptions.map((p) => (
-                    <option key={p} value={p} className="text-[#23412D]">{p}</option>
-                  ))}
-                </select>
-              </div>
-
-              {form.paket === "Lainnya" && (
-                <div>
-                  <label className="text-xs uppercase tracking-[0.2em] text-white/60">Sebutkan Kebutuhan Anda</label>
-                  <input
-                    required
-                    type="text"
-                    name="paketLainnya"
-                    value={form.paketLainnya}
-                    onChange={handleChange}
-                    placeholder="Contoh: Gathering kantor 25 orang"
-                    className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 outline-none transition focus:border-white/50"
-                  />
-                </div>
-              )}
-
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="mt-8 w-full bg-white text-[#23412D] hover:bg-neutral-200"
-            >
-              Kirim & Lanjutkan ke WhatsApp
-            </Button>
-
-          </motion.form>
-
-          <div className="flex items-center gap-4 lg:hidden">
-            <div className="h-px flex-1 bg-white/15" />
-            <span className="text-[11px] uppercase tracking-widest text-white/50">atau</span>
-            <div className="h-px flex-1 bg-white/15" />
           </div>
 
-        </div>
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-8 w-full bg-white text-[#23412D] hover:bg-neutral-200"
+          >
+            Kirim & Lanjutkan ke WhatsApp
+          </Button>
+
+        </motion.form>
 
       </Container>
     </section>
