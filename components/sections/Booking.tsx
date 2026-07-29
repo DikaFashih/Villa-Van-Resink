@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, MessageCircle, ShieldCheck, Phone } from "lucide-react";
+import { FileText, ShieldCheck, ChevronDown } from "lucide-react";
 import Container from "../ui/Container";
 import { Button } from "../ui/Button";
 
@@ -21,8 +21,6 @@ const platformOTA = [
   { nama: "Traveloka", ket: "Booking kamar lewat aplikasi Traveloka", url: "https://www.traveloka.com/id-id/hotel/indonesia/-villa-van-resink-9000005647021" },
   { nama: "Tiket.com", ket: "Booking kamar lewat Tiket.com", url: "https://www.tiket.com/id-id/homes/indonesia/villa-van-resink-711001731313828864" },
 ];
-
-const templateKosong = `Halo Villa Van Resink, saya ingin bertanya ketersediaan booking:%0A%0ANama: %0ACheck-in: %0ACheck-out: %0AJumlah Orang (maks 40): %0APaket yang diminati: %0A%0AMohon informasinya. Terima kasih.`;
 
 export default function Booking() {
 
@@ -191,16 +189,23 @@ export default function Booking() {
 
             <div className={form.paket === "Lainnya" ? "" : "sm:col-span-2"}>
               <label className="text-xs uppercase tracking-[0.2em] text-white/60">Pilih Paket</label>
-              <select
-                name="paket"
-                value={form.paket}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white outline-none transition [color-scheme:dark] focus:border-white/50"
-              >
-                {paketOptions.map((p) => (
-                  <option key={p} value={p} className="text-[#23412D]">{p}</option>
-                ))}
-              </select>
+              <div className="relative mt-2">
+                <select
+                  name="paket"
+                  value={form.paket}
+                  onChange={handleChange}
+                  className="w-full appearance-none rounded-lg border border-white/20 bg-white/5 px-4 py-3 pr-10 text-white outline-none transition focus:border-white/50"
+                >
+                  {paketOptions.map((p) => (
+                    <option key={p} value={p} className="bg-[#1c3524] text-white">{p}</option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={18}
+                  strokeWidth={1.5}
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60"
+                />
+              </div>
             </div>
 
             {form.paket === "Lainnya" && (
