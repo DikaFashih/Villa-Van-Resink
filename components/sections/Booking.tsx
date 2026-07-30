@@ -62,7 +62,7 @@ export default function Booking() {
         >
 
           <p className="mb-4 uppercase tracking-[0.4em] text-white/70">Reservasi</p>
-          <h2 className="font-heading text-5xl leading-tight md:text-6xl">Rencanakan Kunjungan Anda</h2>
+          <h2 className="font-heading text-5xl leading-tight text-white md:text-6xl">Rencanakan Kunjungan Anda</h2>
           <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-white/80">
             Pesan kamar lewat platform booking pilihan Anda, atau hubungi
             kami langsung untuk paket wisata, wedding, maupun study tour.
@@ -88,7 +88,7 @@ export default function Booking() {
                 className="group flex flex-col justify-between rounded-[16px] border border-white/20 bg-white/5 p-6 transition duration-300 hover:border-white/50 hover:bg-white/10"
               >
                 <div>
-                  <p className="font-heading text-2xl">{item.nama}</p>
+                  <p className="font-heading text-2xl text-white">{item.nama}</p>
                   <p className="mt-2 text-sm leading-6 text-white/70">{item.ket}</p>
                 </div>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm uppercase tracking-[0.15em] text-white/80 transition group-hover:gap-3">
@@ -126,7 +126,7 @@ export default function Booking() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white">
               <FileText size={18} strokeWidth={1.5} />
             </div>
-            <p className="font-heading text-2xl">Isi Formulir Booking</p>
+            <p className="font-heading text-2xl text-white">Isi Formulir Booking</p>
           </div>
 
           <p className="mt-4 text-sm leading-6 text-white/60">
