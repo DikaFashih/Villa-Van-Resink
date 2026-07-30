@@ -6,7 +6,7 @@ import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 
 const edukasi = [
-  { numeral: "I", title: "Wisata Edukasi Tanaman", desc: "Menyusuri lorong-lorong taman botani sambil mengenal nama, asal, dan khasiat tiap spesies yang tumbuh di sini — dipandu langsung oleh tim kebun.", image: "/images/edukasi/01.webp" },
+  { numeral: "I", title: "Ecoprint", desc: "pengalaman unik mencetak keindahan alam pada kain.", image: "/images/edukasi/eco print 1.webp" },
   { numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/hiasan1.webp" },
   { numeral: "III", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/study tour1.webp" },
 ];
