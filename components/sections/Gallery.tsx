@@ -9,7 +9,6 @@ const foto = [
   { src: "/images/gallery/1.webp", rotate: "-rotate-2", alt: "Fasad Villa Van Resink" },
   { src: "/images/gallery/2.webp", rotate: "rotate-1", alt: "Taman botani Kaliurang Park" },
   { src: "/images/gallery/3.webp", rotate: "-rotate-1", alt: "Aktivitas wahana pengunjung" },
-  { src: "/images/gallery/4.webp", rotate: "rotate-2", alt: "Suasana taman Villa Van Resink" },
   { src: "/images/gallery/5.webp", rotate: "-rotate-1", alt: "Interior kamar heritage" },
   { src: "/images/gallery/kolamrenang2.webp", rotate: "rotate-2", alt: "Kolam renang alam" },
   { src: "/images/gallery/kamar2.webp", rotate: "-rotate-2", alt: "Kamar heritage" },
