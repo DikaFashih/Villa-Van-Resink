@@ -9,8 +9,13 @@ const foto = [
   { src: "/images/gallery/1.webp", rotate: "-rotate-2", alt: "Fasad Villa Van Resink" },
   { src: "/images/gallery/2.webp", rotate: "rotate-1", alt: "Taman botani Kaliurang Park" },
   { src: "/images/gallery/3.webp", rotate: "-rotate-1", alt: "Aktivitas wahana pengunjung" },
-  { src: "/images/gallery/4.webp", rotate: "rotate-2", alt: "Suasana wedding venue" },
+  { src: "/images/gallery/4.webp", rotate: "rotate-2", alt: "Suasana taman Villa Van Resink" },
   { src: "/images/gallery/5.webp", rotate: "-rotate-1", alt: "Interior kamar heritage" },
+  { src: "/images/gallery/kolamrenang2.webp", rotate: "rotate-2", alt: "Kolam renang alam" },
+  { src: "/images/gallery/kamar2.webp", rotate: "-rotate-2", alt: "Kamar heritage" },
+  { src: "/images/gallery/ruangtamu1.webp", rotate: "rotate-1", alt: "Ruang tamu villa" },
+  { src: "/images/gallery/villa 3.webp", rotate: "-rotate-1", alt: "Fasad villa dari sisi lain" },
+  { src: "/images/gallery/weddinng1.jpg", rotate: "-rotate-1", alt: "acara pernikahan" },
 ];
 
 export default function Gallery() {
@@ -24,7 +29,7 @@ export default function Gallery() {
           description="Beberapa momen yang terekam dari kunjungan tamu-tamu kami."
         />
 
-        <div className="mt-20 grid grid-cols-2 gap-x-6 gap-y-16 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-2 gap-x-5 gap-y-12 sm:mt-20 sm:gap-x-6 sm:gap-y-16 md:grid-cols-3">
 
           {foto.map((item, index) => (
 
@@ -37,7 +42,7 @@ export default function Gallery() {
               className={`group relative ${item.rotate} transition-transform duration-500 hover:rotate-0 hover:z-10`}
             >
 
-              <div className="border-8 border-white bg-white shadow-[0_10px_25px_-8px_rgba(0,0,0,0.25)]">
+              <div className="border-4 border-white bg-white shadow-[0_10px_25px_-8px_rgba(0,0,0,0.25)] sm:border-8">
                 <div className="relative aspect-[4/5] w-full overflow-hidden">
                   <Image
                     src={item.src}

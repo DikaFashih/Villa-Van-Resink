@@ -1,14 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { cn } from "@/lib/cn";
 
-interface SectionTitleProps {
-  eyebrow: string;
+interface Props {
+  eyebrow?: string;
   title: string;
   description?: string;
   center?: boolean;
-  className?: string;
 }
 
 export default function SectionTitle({
@@ -16,34 +14,32 @@ export default function SectionTitle({
   title,
   description,
   center = false,
-  className,
-}: SectionTitleProps) {
+}: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 35 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8 }}
-      className={cn(center && "text-center", className)}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: .6 }}
+      className={center ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}
     >
-      <p className="mb-3 text-sm uppercase tracking-[0.35em] text-[#8A6E4A]">
-        {eyebrow}
-      </p>
 
-      <h2 className="font-heading text-4xl leading-tight text-[#2F2B27] md:text-6xl">
+      {eyebrow && (
+        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[#8A6E4A] sm:text-sm sm:tracking-[0.4em]">
+          {eyebrow}
+        </p>
+      )}
+
+      <h2 className="font-heading text-3xl leading-tight text-[#23412D] sm:text-4xl lg:text-5xl">
         {title}
       </h2>
 
       {description && (
-        <p
-          className={cn(
-            "mt-6 max-w-3xl text-lg leading-8 text-neutral-600",
-            center && "mx-auto"
-          )}
-        >
+        <p className="mt-4 text-base leading-7 text-neutral-600 sm:mt-5 sm:text-lg sm:leading-8">
           {description}
         </p>
       )}
+
     </motion.div>
   );
 }
