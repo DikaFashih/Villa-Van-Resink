@@ -8,7 +8,7 @@ export default function Hero() {
     <section className="relative h-screen overflow-hidden">
 
       <Image
-        src="/images/hero.webp"
+        src="/images/gallery/1.webp"
         alt="Villa Van Resink"
         fill
         priority

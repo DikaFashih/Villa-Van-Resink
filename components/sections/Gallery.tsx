@@ -16,6 +16,8 @@ const foto = [
   { src: "/images/gallery/ruangtamu1.webp", rotate: "rotate-1", alt: "Ruang tamu villa" },
   { src: "/images/gallery/villa 3.webp", rotate: "-rotate-1", alt: "Fasad villa dari sisi lain" },
   { src: "/images/gallery/weddinng1.jpg", rotate: "-rotate-1", alt: "acara pernikahan" },
+  { src: "/images/wahana/Flying Fox.webp", rotate: "-rotate-1", alt: "Flying Fox"},
+  { src: "/images/wahana/panahan1.webp", rotate: "-rotate-1", alt: "Memanah di Taman Botani"},
 ];
 
 export default function Gallery() {
