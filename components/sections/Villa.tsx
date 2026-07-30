@@ -48,7 +48,7 @@ export default function Villa() {
             transition={{ duration: .7, delay: .15 }}
             className="relative h-80 overflow-hidden rounded-[4px] border border-[#8A6E4A]/25 sm:h-[420px]"
           >
-            <Image src="/images/villa.webp" alt="Villa Van Resink" fill className="object-cover" />
+            <Image src="/gallery/2.webp" alt="Villa Van Resink" fill className="object-cover" />
           </motion.div>
 
         </div>
