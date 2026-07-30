@@ -6,11 +6,11 @@ import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 
 const wahana = [
-  { title: "Camping Ground", category: "Bermalam", desc: "Rasakan dinginnya udara pegunungan sembari mendirikan tenda di bawah pohon-pohon pinus tua.", image: "/images/wahana/01.webp", tall: false },
-  { title: "Flying Fox", category: "Adrenalin", desc: "Meluncur menyisir kanopi taman botani dengan panorama Merapi di kejauhan.", image: "/images/wahana/02.webp", tall: true },
-  { title: "Green House", category: "Botani", desc: "Koleksi tumbuhan langka dari berbagai penjuru nusantara, terawat dalam rumah kaca kolonial.", image: "/images/wahana/03.webp", tall: false },
-  { title: "Tamiya Mountain Coaster", category: "Adrenalin", desc: "Nikmati Sensasi Meluncur Dikelilingi Pohon Rindang.", image: "/images/wahana/04.webp", tall: false },
-  { title: "Panahan", category: "Ketangkasan", desc: "Latih fokus dan ketepatan bersama instruktur berpengalaman di area terbuka.", image: "/images/wahana/05.webp", tall: true },
+  { title: "Camping Ground", category: "Bermalam", desc: "Rasakan dinginnya udara pegunungan sembari mendirikan tenda di bawah pohon-pohon pinus tua.", image: "/images/wahana/camping ground.webp", tall: false },
+  { title: "Flying Fox", category: "Adrenalin", desc: "Meluncur menyisir kanopi taman botani dengan panorama Merapi di kejauhan.", image: "/images/wahana/Flying Fox.webp", tall: true },
+  { title: "Green House", category: "Botani", desc: "Koleksi tumbuhan langka dari berbagai penjuru nusantara, terawat dalam rumah kaca kolonial.", image: "/images/wahana/greenhouse1.webp", tall: false },
+  { title: "Tamiya Mountain Coaster", category: "Adrenalin", desc: "Nikmati Sensasi Meluncur Dikelilingi Pohon Rindang.", image: "/images/wahana/tamiyamontaincoaster.png", tall: false },
+  { title: "Panahan", category: "Ketangkasan", desc: "Latih fokus dan ketepatan bersama instruktur berpengalaman di area terbuka.", image: "/images/wahana/panahan1.webp", tall: true },
 ];
 
 export default function Wahana() {

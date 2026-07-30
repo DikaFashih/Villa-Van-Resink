@@ -7,9 +7,8 @@ import SectionTitle from "../ui/SectionTitle";
 
 const edukasi = [
   { numeral: "I", title: "Wisata Edukasi Tanaman", desc: "Menyusuri lorong-lorong taman botani sambil mengenal nama, asal, dan khasiat tiap spesies yang tumbuh di sini — dipandu langsung oleh tim kebun.", image: "/images/edukasi/01.webp" },
-  { numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/02.webp" },
-  { numeral: "III", title: "Workshop Berkebun", desc: "Turun tangan langsung — mencangkok, menanam, dan merawat bibit sendiri, dibawa pulang sebagai kenang-kenangan hidup.", image: "/images/edukasi/03.webp" },
-  { numeral: "IV", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/04.webp" },
+  { numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/hiasan1.webp" },
+  { numeral: "III", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/study tour1.webp" },
 ];
 
 export default function Edukasi() {
@@ -20,7 +19,7 @@ export default function Edukasi() {
         <SectionTitle
           eyebrow="Catatan Lapangan"
           title="Program Edukasi"
-          description="Empat halaman dari jurnal kebun kami — pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
+          description="Tiga halaman dari jurnal kebun kami — pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
         />
 
         <div className="relative mt-24">
