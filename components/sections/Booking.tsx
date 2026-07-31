@@ -6,7 +6,7 @@ import { FileText, ShieldCheck, ChevronDown } from "lucide-react";
 import Container from "../ui/Container";
 import { Button } from "../ui/Button";
 
-const NOMOR_WA = "6281234567890";
+const NOMOR_WA = "628157728629";
 
 const paketOptions = [
   "Paket Wisata Harian",
