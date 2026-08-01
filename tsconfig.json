@@ -14,8 +14,8 @@
     "jsx": "react-jsx",
     "incremental": true,
 
-    "baseUrl": ".",            // <-- TAMBAHKAN INI
-
+    "baseUrl": ".", // <-- TAMBAHKAN INI
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./*"]
     },
