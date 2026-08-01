@@ -128,9 +128,9 @@ app.get("/transaksi", (req, res) => {
 // API Ambil Data Paket + Harga + Rata-rata Rating
 app.get("/paket", (req, res) => {
   const sql = `
-    SELECT 
-      l.id, 
-      l.nama_layanan, 
+    SELECT
+      l.id,
+      l.nama_layanan,
       l.harga,
       l.deskripsi,
       ROUND(AVG(r.rating), 1) AS rating_rata,
