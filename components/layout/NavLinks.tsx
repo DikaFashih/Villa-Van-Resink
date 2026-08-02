@@ -1,28 +1,55 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { navigation } from "@/lib/navigation";
+import { getCurrentUser, subscribeToAuth, type AuthUser } from "@/lib/auth";
 
 interface Props {
   dark?: boolean;
   onClick?: () => void;
 }
 
-export default function NavLinks({
-  dark = false,
-  onClick,
-}: Props) {
-
+export default function NavLinks({ dark = false, onClick }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [user, setUser] = useState<AuthUser | null>(() => getCurrentUser());
+
+  useEffect(() => {
+    return subscribeToAuth(() => setUser(getCurrentUser()));
+  }, []);
+
+  const handleBookingClick = () => {
+    onClick?.();
+    if (!user) {
+      router.push("/login?redirect=/booking");
+      return;
+    }
+    router.push("/booking");
+  };
 
   return (
     <>
       {navigation.map((item) => {
-
         const isActive = pathname === item.href;
 
         if (item.isButton) {
+          // Tombol Booking: cek login dulu sebelum masuk ke halaman booking.
+          if (item.href === "/booking") {
+            return (
+              <button
+                key={item.href}
+                type="button"
+                onClick={handleBookingClick}
+                className="rounded-full bg-[#23412D] px-6 py-2.5 text-xs normal-case tracking-normal text-white transition-all duration-300 hover:bg-[#1a3022] hover:-translate-y-0.5"
+              >
+                {item.title}
+              </button>
+            );
+          }
+
           return (
             <Link
               key={item.href}
@@ -76,7 +103,6 @@ export default function NavLinks({
             />
           </Link>
         );
-
       })}
     </>
   );

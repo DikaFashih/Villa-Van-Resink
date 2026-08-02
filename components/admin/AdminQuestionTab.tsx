@@ -5,7 +5,6 @@ import { MessageCircleQuestion } from "lucide-react";
 import { getAllQuestions, answerQuestion, subscribeToQuestions, type Question } from "@/lib/question";
 
 export default function AdminQuestionTab() {
-
   const [questions, setQuestions] = useState<Question[]>(() => getAllQuestions());
   const [jawabanInput, setJawabanInput] = useState<Record<string, string>>({});
 

@@ -95,3 +95,12 @@ export function getGroupedSummaries(targetType: TargetType): TargetSummary[] {
     }))
     .sort((a, b) => b.averageRating - a.averageRating || b.count - a.count);
 }
+
+export function getAllRawReviews(): Review[] {
+  return readAll().sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function removeReview(id: string) {
+  const all = readAll();
+  writeAll(all.filter((r) => r.id !== id));
+}

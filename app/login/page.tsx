@@ -37,7 +37,7 @@ function LoginForm() {
     if (result.user.role === "superadmin" || result.user.role === "admin") {
       router.push("/admin");
     } else {
-      router.push("/");
+      router.push("/dashboard");
     }
   };
 
@@ -45,7 +45,6 @@ function LoginForm() {
     <section className="flex min-h-screen items-center bg-[#FBF8F2] py-20">
       <Container>
         <div className="mx-auto max-w-md rounded-[16px] border border-[#8A6E4A]/25 bg-white p-8 sm:p-10">
-
           <p className="text-[11px] uppercase tracking-[0.3em] text-[#8A6E4A]">Villa Van Resink</p>
           <h1 className="mt-2 font-heading text-3xl text-[#23412D]">Masuk ke Akun</h1>
           <p className="mt-2 text-sm text-neutral-600">
@@ -53,7 +52,6 @@ function LoginForm() {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-
             <div>
               <label className="mb-1 block text-xs text-neutral-500">Email</label>
               <input
@@ -87,7 +85,6 @@ function LoginForm() {
             >
               {loading ? "Memproses..." : "Masuk"}
             </button>
-
           </form>
 
           <p className="mt-6 text-center text-sm text-neutral-600">
@@ -99,7 +96,6 @@ function LoginForm() {
               Daftar di sini
             </Link>
           </p>
-
         </div>
       </Container>
     </section>
