@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-
+import AuthNav from "../sections/AuthNav";
 import Container from "../ui/Container";
 import PageTitle from "./PageTitle";
 import DesktopNav from "./DesktopNav";
@@ -77,6 +77,10 @@ export default function Header() {
             <PageTitle dark={scrolled} />
 
             <DesktopNav dark={scrolled} />
+
+            <div className="hidden items-center gap-6 lg:flex">
+              <AuthNav dark={scrolled} />
+            </div>
 
             <MenuButton
               open={mobileOpen}

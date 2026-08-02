@@ -1,14 +1,23 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
-import { Button } from "../ui/Button";
+import StarRating from "../ui/StarRating";
+import ReviewsPanel from "../ui/ReviewsPanel";
+import ReviewBox from "../ui/ReviewBox";
+import {
+  addReview,
+  getReviewsFor,
+  subscribeToReviews,
+  type Review,
+} from "@/lib/reviews";
 
 const paket = [
   {
+    slug: "wisata-harian",
     kode: "WST-01",
     nama: "Paket Wisata Harian",
     ket: "Akses seluruh wahana, taman botani, dan area edukasi selama satu hari kunjungan.",
@@ -19,19 +28,21 @@ const paket = [
              "/images/wahana/panahan3.webp"],
   },
   {
+    slug: "menginap",
     kode: "MNG-02",
     nama: "Paket Menginap",
     ket: "Satu malam di kamar heritage Villa Van Resink, lengkap dengan sarapan dan akses wahana.",
-    cocok: "Pasangan, staycation",
+    cocok: "Makrab, Liburan keluarga, Liburan Kantor",
     images: ["/images/gallery/kamar1.webp",
-             "/images/gallery/kamar2.webp", 
+             "/images/gallery/kamar2.webp",
              "/images/gallery/dapur1.webp",
-             "/images/gallery/villa 2.webp", 
+             "/images/gallery/villa 2.webp",
              "/images/gallery/villa 3.webp",
              "/images/gallery/halaman1.webp",
-             "/images/gallery/halaman2.webp",]
+             "/images/gallery/halaman2.webp"],
   },
   {
+    slug: "wedding-event",
     kode: "WED-03",
     nama: "Paket Wedding & Event",
     ket: "Sewa venue, dekorasi taman, dan koordinasi acara untuk pernikahan atau gathering.",
@@ -40,6 +51,7 @@ const paket = [
              "/images/gallery/event1.webp"],
   },
   {
+    slug: "study-tour",
     kode: "EDU-04",
     nama: "Paket Study Tour",
     ket: "Kunjungan edukatif terjadwal untuk rombongan pelajar, lengkap dengan pemandu.",
@@ -55,7 +67,7 @@ const paket = [
               "/images/wahana/mandi salju1.webp",
               "/images/wahana/mandi salju2.webp",
               "/images/wahana/mountain slide.webp",
-              "/images/wahana/mountain slide 2.webp",]
+              "/images/wahana/mountain slide 2.webp"],
   },
 ];
 
@@ -80,25 +92,29 @@ function PhotoCarousel({ images, alt }: { images: string[]; alt: string }) {
         className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {images.map((src, i) => (
-          <div key={src} className="relative h-44 w-full flex-none snap-center sm:h-52">
+          <div
+            key={src}
+            className="relative h-[320px] sm:h-[380px] w-full flex-none snap-center bg-[#F7F4EE]"
+          >
             <Image
               src={src}
               alt={`${alt} ${i + 1}`}
               fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
+              sizes="(min-width:768px) 50vw,100vw"
+              className="object-contain p-4 transition-transform duration-500 hover:scale-[1.02]"
+              priority={i === 0}
             />
           </div>
         ))}
       </div>
 
       {images.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-black/25 px-3 py-1 backdrop-blur-sm">
           {images.map((_, i) => (
             <span
               key={i}
-              className={`h-1.5 w-1.5 rounded-full transition ${
-                i === active ? "bg-white" : "bg-white/50"
+              className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                i === active ? "scale-125 bg-white" : "bg-white/50"
               }`}
             />
           ))}
@@ -140,6 +156,9 @@ export default function Packages() {
                 <h3 className="mt-2 font-heading text-2xl text-[#23412D] sm:text-3xl">{item.nama}</h3>
                 <p className="mt-3 text-sm leading-6 text-neutral-600 sm:mt-4 sm:text-base sm:leading-7">{item.ket}</p>
                 <p className="mt-4 text-sm italic text-[#8A6E4A]">Cocok untuk: {item.cocok}</p>
+
+               <ReviewBox targetType="paket" targetSlug={item.slug} targetLabel={item.nama} />
+
               </div>
 
             </motion.div>
@@ -148,13 +167,11 @@ export default function Packages() {
 
         </div>
 
-        <div className="mt-14 text-center">
-          <a href="/booking">
-            <Button size="lg" className="bg-[#23412D] text-white hover:bg-[#1a3022]">
-              Tanyakan Harga & Ketersediaan
-            </Button>
-          </a>
-        </div>
+        <ReviewsPanel
+          targetType="paket"
+          title="Ulasan Paket Tertinggi"
+          items={paket.map((p) => ({ slug: p.slug, label: p.nama, image: p.images[0] }))}
+        />
 
       </Container>
     </section>
