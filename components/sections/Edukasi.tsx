@@ -21,7 +21,7 @@ export default function Edukasi() {
         <SectionTitle
           eyebrow="Catatan Lapangan"
           title="Program Edukasi"
-          description="Tiga halaman dari jurnal kebun kami — pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
+          description="Tiga halaman dari jurnal kebun kami â€” pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
         />
 
         <div className="relative mt-24">
@@ -67,7 +67,7 @@ export default function Edukasi() {
                     <div className="mt-4 h-px w-12 bg-[#8A6E4A]/50" />
                     <p className="mt-5 max-w-md leading-8 text-neutral-600">{item.desc}</p>
 
-                    <ReviewBox targetType="edukasi" targetSlug={item.slug} targetLabel={item.title} />
+                    <ReviewBox layananId={1} targetLabel={item.title} />
 
                   </div>
 
@@ -81,9 +81,7 @@ export default function Edukasi() {
 
         </div>
 
-        <ReviewsPanel
-          targetType="edukasi"
-          title="Ulasan Program Edukasi Terfavorit"
+        <ReviewsPanel title="Ulasan Program Edukasi Terfavorit"
           items={edukasi.map((e) => ({ slug: e.slug, label: e.title, image: e.image }))}
         />
 
@@ -91,3 +89,5 @@ export default function Edukasi() {
     </section>
   );
 }
+
+

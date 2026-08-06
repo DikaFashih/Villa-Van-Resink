@@ -1,19 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
-import StarRating from "../ui/StarRating";
-import ReviewsPanel from "../ui/ReviewsPanel";
 import ReviewBox from "../ui/ReviewBox";
-import {
-  addReview,
-  getReviewsFor,
-  subscribeToReviews,
-  type Review,
-} from "@/lib/reviews";
+import ReviewsPanel from "../ui/ReviewsPanel";
 
 const paket = [
   {
@@ -157,7 +151,7 @@ export default function Packages() {
                 <p className="mt-3 text-sm leading-6 text-neutral-600 sm:mt-4 sm:text-base sm:leading-7">{item.ket}</p>
                 <p className="mt-4 text-sm italic text-[#8A6E4A]">Cocok untuk: {item.cocok}</p>
 
-               <ReviewBox targetType="paket" targetSlug={item.slug} targetLabel={item.nama} />
+               <ReviewBox layananId={1} targetLabel={item.nama} />
 
               </div>
 
@@ -167,9 +161,7 @@ export default function Packages() {
 
         </div>
 
-        <ReviewsPanel
-          targetType="paket"
-          title="Ulasan Paket Tertinggi"
+        <ReviewsPanel title="Ulasan Paket Tertinggi"
           items={paket.map((p) => ({ slug: p.slug, label: p.nama, image: p.images[0] }))}
         />
 
@@ -177,3 +169,7 @@ export default function Packages() {
     </section>
   );
 }
+
+
+
+

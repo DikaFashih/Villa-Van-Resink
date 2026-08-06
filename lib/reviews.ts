@@ -1,106 +1,172 @@
-export type TargetType = "paket" | "wahana" | "edukasi";
-
 export interface Review {
-  id: string;
-  targetType: TargetType;
-  targetSlug: string;
-  targetLabel: string;
+  id: number;
+  bookingId: number;
+  userId: number;
   nama: string;
+  layananId: number;
+  layananNama: string;
+  layananSlug: string;
   rating: number;
   komentar: string;
-  createdAt: number;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
 }
 
-const STORAGE_KEY = "vvr_reviews";
-const EVENT_NAME = "vvr-reviews-updated";
+export async function getAllReviews(): Promise<Review[]> {
 
-function readAll(): Review[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
+  const res = await fetch("/api/reviews");
+
+  if (!res.ok) {
     return [];
   }
+
+  return await res.json();
+
 }
 
-function writeAll(reviews: Review[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-  window.dispatchEvent(new Event(EVENT_NAME));
+export async function getReviewsFor(
+  layananId: number
+): Promise<Review[]> {
+
+  const all = await getAllReviews();
+
+  return all.filter(
+    (r) =>
+      r.layananId === layananId &&
+      r.status === "approved"
+  );
+
 }
 
-export function subscribeToReviews(callback: () => void) {
-  window.addEventListener(EVENT_NAME, callback);
-  return () => window.removeEventListener(EVENT_NAME, callback);
-}
+export async function getAverageRating(
+  layananId: number
+): Promise<number> {
 
-export function getReviewsFor(targetType: TargetType, targetSlug: string): Review[] {
-  return readAll()
-    .filter((r) => r.targetType === targetType && r.targetSlug === targetSlug)
-    .sort((a, b) => b.rating - a.rating || b.createdAt - a.createdAt);
-}
+  const reviews = await getReviewsFor(
+    layananId
+  );
 
-export function getAllReviewsFor(targetType: TargetType): Review[] {
-  return readAll()
-    .filter((r) => r.targetType === targetType)
-    .sort((a, b) => b.rating - a.rating || b.createdAt - a.createdAt);
-}
-
-export function addReview(review: Omit<Review, "id" | "createdAt">): Review {
-  const newReview: Review = {
-    ...review,
-    id: crypto.randomUUID(),
-    createdAt: Date.now(),
-  };
-  const all = readAll();
-  all.push(newReview);
-  writeAll(all);
-  return newReview;
-}
-
-export function getAverageRating(targetType: TargetType, targetSlug: string): number {
-  const reviews = getReviewsFor(targetType, targetSlug);
-  if (reviews.length === 0) return 0;
-  return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-}
-
-export interface TargetSummary {
-  targetSlug: string;
-  targetLabel: string;
-  averageRating: number;
-  count: number;
-  latestCreatedAt: number;
-}
-
-export function getGroupedSummaries(targetType: TargetType): TargetSummary[] {
-  const all = readAll().filter((r) => r.targetType === targetType);
-  const map = new Map<string, { label: string; total: number; count: number; latest: number }>();
-
-  for (const r of all) {
-    const cur = map.get(r.targetSlug) ?? { label: r.targetLabel, total: 0, count: 0, latest: 0 };
-    cur.total += r.rating;
-    cur.count += 1;
-    cur.latest = Math.max(cur.latest, r.createdAt);
-    cur.label = r.targetLabel;
-    map.set(r.targetSlug, cur);
+  if (reviews.length === 0) {
+    return 0;
   }
 
-  return Array.from(map.entries())
-    .map(([slug, v]) => ({
-      targetSlug: slug,
-      targetLabel: v.label,
-      averageRating: v.total / v.count,
-      count: v.count,
-      latestCreatedAt: v.latest,
-    }))
-    .sort((a, b) => b.averageRating - a.averageRating || b.count - a.count);
+  return (
+    reviews.reduce(
+      (sum, r) => sum + r.rating,
+      0
+    ) / reviews.length
+  );
+
 }
 
-export function getAllRawReviews(): Review[] {
-  return readAll().sort((a, b) => b.createdAt - a.createdAt);
+export async function addReview(data: {
+  bookingId: number;
+  userId: number;
+  layananId: number;
+  rating: number;
+  komentar: string;
+}) {
+
+  const res = await fetch(
+    "/api/reviews",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  return await res.json();
+
 }
 
-export function removeReview(id: string) {
-  const all = readAll();
-  writeAll(all.filter((r) => r.id !== id));
+export async function updateReviewStatus(
+  id: number,
+  status: "pending" | "approved" | "rejected"
+) {
+
+  await fetch(`/api/reviews/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      status,
+    }),
+  });
+
+}
+
+export async function removeReview(
+  id: number
+) {
+
+  await fetch(`/api/reviews/${id}`, {
+    method: "DELETE",
+  });
+
+}
+
+export async function getAllRawReviews(): Promise<Review[]> {
+
+  return await getAllReviews();
+
+}
+
+export interface ReviewSummary {
+  layananId: number;
+  layananNama: string;
+  layananSlug: string;
+  averageRating: number;
+  count: number;
+}
+
+export async function getGroupedSummaries(): Promise<ReviewSummary[]> {
+
+  const reviews = await getAllReviews();
+
+  const approved = reviews.filter(
+    (r) => r.status === "approved"
+  );
+
+  const map = new Map<
+    number,
+    {
+      layananNama: string;
+      layananSlug: string;
+      total: number;
+      count: number;
+    }
+  >();
+
+  for (const review of approved) {
+
+    const current = map.get(review.layananId) ?? {
+      layananNama: review.layananNama,
+      layananSlug: review.layananSlug,
+      total: 0,
+      count: 0,
+    };
+
+    current.total += review.rating;
+    current.count++;
+
+    map.set(review.layananId, current);
+
+  }
+
+  return Array.from(map.entries()).map(
+    ([layananId, value]) => ({
+      layananId,
+      layananNama: value.layananNama,
+      layananSlug: value.layananSlug,
+      averageRating:
+        value.total / value.count,
+      count: value.count,
+    })
+  );
+
 }

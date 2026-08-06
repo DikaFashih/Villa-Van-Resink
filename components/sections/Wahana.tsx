@@ -23,7 +23,7 @@ export default function Wahana() {
         <SectionTitle
           eyebrow="Koleksi Aktivitas"
           title="Wahana di Taman Botani"
-          description="Seperti spesimen dalam katalog kebun raya, setiap wahana di Villa Van Resink punya karakternya sendiri — dari yang memacu adrenalin hingga yang mengajak melambat."
+          description="Seperti spesimen dalam katalog kebun raya, setiap wahana di Villa Van Resink punya karakternya sendiri â€” dari yang memacu adrenalin hingga yang mengajak melambat."
         />
 
         <div className="mt-14 grid gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3">
@@ -60,7 +60,7 @@ export default function Wahana() {
               <div className="mt-3 h-px w-10 bg-[#8A6E4A]/50 transition-all duration-500 group-hover:w-16" />
               <p className="mt-3 flex-1 text-sm leading-6 text-neutral-600">{item.desc}</p>
 
-              <ReviewBox targetType="wahana" targetSlug={item.slug} targetLabel={item.title} />
+              <ReviewBox layananId={1} targetLabel={item.title} />
 
             </motion.div>
 
@@ -68,9 +68,7 @@ export default function Wahana() {
 
         </div>
 
-        <ReviewsPanel
-          targetType="wahana"
-          title="Ulasan Wahana Terfavorit"
+        <ReviewsPanel title="Ulasan Wahana Terfavorit"
           items={wahana.map((w) => ({ slug: w.slug, label: w.title, image: w.image }))}
         />
 
@@ -78,3 +76,5 @@ export default function Wahana() {
     </section>
   );
 }
+
+

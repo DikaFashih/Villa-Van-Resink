@@ -1,64 +1,100 @@
 import { pool } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 
-// Update promo (misal ubah status aktif)
+interface Context {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: Context
 ) {
   const { id } = await params;
   const body = await req.json();
 
   const fields: string[] = [];
-  const values: (string | number)[] = [];
+  const values: unknown[] = [];
 
   if (body.judul !== undefined) {
-    fields.push("judul = ?");
+    fields.push("judul=?");
     values.push(body.judul);
   }
+
   if (body.deskripsi !== undefined) {
-    fields.push("deskripsi = ?");
+    fields.push("deskripsi=?");
     values.push(body.deskripsi);
   }
+
   if (body.diskonPersen !== undefined) {
-    fields.push("diskon_persen = ?");
+    fields.push("diskon_persen=?");
     values.push(body.diskonPersen);
   }
+
   if (body.aktif !== undefined) {
-    fields.push("aktif = ?");
+    fields.push("aktif=?");
     values.push(body.aktif ? 1 : 0);
   }
+
   if (body.tanggalMulai !== undefined) {
-    fields.push("tanggal_mulai = ?");
+    fields.push("tanggal_mulai=?");
     values.push(body.tanggalMulai);
   }
+
   if (body.tanggalSelesai !== undefined) {
-    fields.push("tanggal_selesai = ?");
+    fields.push("tanggal_selesai=?");
     values.push(body.tanggalSelesai);
   }
 
-  if (fields.length === 0) {
-    return NextResponse.json(
-      { error: "Tidak ada data untuk diupdate" },
-      { status: 400 },
+  if (body.paketSlug !== undefined) {
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT id FROM layanan_villa WHERE slug=?",
+      [body.paketSlug]
     );
+
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { error: "Paket tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    fields.push("layanan_id=?");
+    values.push(rows[0].id);
+
+  }
+
+  if (fields.length === 0) {
+    return NextResponse.json({ success: true });
   }
 
   values.push(id);
-  await pool.query(
-    `UPDATE promo SET ${fields.join(", ")} WHERE id = ?`,
-    values,
+
+  await pool.query<ResultSetHeader>(
+    `UPDATE promo
+     SET ${fields.join(",")}
+     WHERE id=?`,
+    values
   );
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ success: true });
 }
 
-// Hapus promo
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: Context
 ) {
   const { id } = await params;
-  await pool.query("DELETE FROM promo WHERE id = ?", [id]);
-  return NextResponse.json({ ok: true });
+
+  await pool.query<ResultSetHeader>(
+    "DELETE FROM promo WHERE id=?",
+    [id]
+  );
+
+  return NextResponse.json({
+    success: true
+  });
 }

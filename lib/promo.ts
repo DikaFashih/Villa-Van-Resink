@@ -82,3 +82,29 @@ export async function removePromo(id: string): Promise<void> {
   await fetch(`/api/promo/${id}`, { method: "DELETE" });
   notify();
 }
+
+export interface ActivePromo {
+  id: string;
+  judul: string;
+  deskripsi: string;
+  diskon: number;
+  tanggalSelesai: string;
+  paketSlug: string;
+}
+
+export async function getActivePromo() {
+  try {
+    const res = await fetch("/api/promo/active");
+
+    if (!res.ok) return null;
+
+    const text = await res.text();
+
+    if (!text) return null;
+
+    return JSON.parse(text) as ActivePromo | null;
+  } catch {
+    return null;
+  }
+}
+
