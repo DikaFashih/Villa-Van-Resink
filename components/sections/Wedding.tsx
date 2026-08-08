@@ -46,7 +46,7 @@ export default function Wedding() {
 
           <p className="mt-6 max-w-lg leading-8 text-[#23412D]/80">
             Rayakan momen spesial dengan latar villa kolonial, taman hijau,
-            dan udara sejuk Kaliurang — ruang yang menyatu dengan alam,
+            dan udara sejuk Kaliurang â€” ruang yang menyatu dengan alam,
             tanpa perlu dekorasi berlebihan.
           </p>
 

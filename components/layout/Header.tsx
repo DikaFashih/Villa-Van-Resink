@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-
 import Container from "../ui/Container";
 import PageTitle from "./PageTitle";
 import DesktopNav from "./DesktopNav";
 import MenuButton from "./MenuButton";
 import MobileMenu from "./MobileMenu";
+import AuthNav from "../sections/AuthNav";
 
 export default function Header() {
   const [scrolledPast, setScrolledPast] = useState(false);
@@ -43,20 +43,11 @@ export default function Header() {
         z-50
         transition-all
         duration-500
-        ${
-          scrolled
-            ? "py-3"
-            : "py-7"
-        }
-        ${
-          hidden
-            ? "-translate-y-full opacity-0 pointer-events-none"
-            : "translate-y-0 opacity-100"
-        }
+        ${scrolled ? "py-3" : "py-7"}
+        ${hidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}
       `}
       >
         <Container>
-
           <div
             className={`
             flex
@@ -67,11 +58,7 @@ export default function Header() {
             duration-500
             px-6
             sm:px-8
-            ${
-              scrolled
-                ? "h-16 bg-white/80 backdrop-blur-xl shadow-xl"
-                : "h-20 bg-transparent"
-            }
+            ${scrolled ? "h-16 bg-white/80 backdrop-blur-xl shadow-xl" : "h-20 bg-transparent"}
           `}
           >
             <PageTitle dark={scrolled} />
@@ -83,16 +70,11 @@ export default function Header() {
               onClick={() => setMobileOpen((v) => !v)}
               dark={scrolled}
             />
-
           </div>
-
         </Container>
       </header>
 
-      <MobileMenu
-        open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-      />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </>
   );
 }

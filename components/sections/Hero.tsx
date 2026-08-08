@@ -29,7 +29,7 @@ export default function Hero() {
             transition={{ duration:.8 }}
             className="mb-4 text-xs tracking-[0.5em] uppercase text-white/80 sm:text-base"
           >
-            Heritage • Botanical Garden
+            Heritage â€¢ Botanical Garden
           </motion.p>
 
           <motion.h1

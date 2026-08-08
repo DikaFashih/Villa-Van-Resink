@@ -36,7 +36,7 @@ export default function Villa() {
             Berdiri sejak masa kolonial di tengah kawasan Kaliurang Park
             Botanical Garden, Villa Van Resink adalah saksi bisu perjalanan
             waktu yang tetap mempertahankan wajah aslinya. Setiap dinding,
-            jendela kupu-kupu, dan lantai tegelnya menyimpan cerita — kini
+            jendela kupu-kupu, dan lantai tegelnya menyimpan cerita â€” kini
             terbuka untuk siapa pun yang ingin merasakan pengalaman menginap
             di tengah taman botani yang asri, jauh dari hiruk-pikuk kota.
           </motion.p>

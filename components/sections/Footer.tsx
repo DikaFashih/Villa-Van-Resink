@@ -4,7 +4,7 @@ export default function Footer() {
 
       <div className="mx-auto max-w-7xl px-6 flex justify-between">
 
-        <span>© 2026 Villa Van Resink</span>
+        <span>Â© 2026 Villa Van Resink</span>
 
         <span>Kaliurang, Sleman</span>
 

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -14,8 +15,8 @@
     "jsx": "react-jsx",
     "incremental": true,
 
-    "baseUrl": ".", // <-- TAMBAHKAN INI
-    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+
     "paths": {
       "@/*": ["./*"]
     },

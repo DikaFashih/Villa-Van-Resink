@@ -1,9 +1,11 @@
+// TARUH DI: app/layout.tsx (timpa file yang sekarang)
+// Header & Footer situs DIHAPUS dari sini â€” dipindah ke app/(site)/layout.tsx
+// supaya halaman login/register/admin/dashboard (di app/(portal)/...) tidak
+// ikut memakai Header/Footer web publik.
+
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Libre_Baskerville, Jost } from "next/font/google";
 import { MotionConfig } from "framer-motion";
-
-import Header from "@/components/layout/Header";
-import Footer from "@/components/sections/Footer";
 
 import "./globals.css";
 
@@ -28,7 +30,7 @@ const jost = Jost({
 export const metadata: Metadata = {
   title: "Villa Van Resink | Kaliurang Park Botanical Garden",
   description:
-    "Villa Van Resink — retreat butik bersejarah di tengah Kaliurang Park Botanical Garden, Yogyakarta.",
+    "Villa Van Resink â€” retreat butik bersejarah di tengah Kaliurang Park Botanical Garden, Yogyakarta.",
 };
 
 export default function RootLayout({
@@ -47,13 +49,7 @@ export default function RootLayout({
           antialiased
         `}
       >
-
-        <MotionConfig reducedMotion="user">
-  <Header />
-  {children}
-  <Footer />
-</MotionConfig>
-
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
       </body>
     </html>
   );

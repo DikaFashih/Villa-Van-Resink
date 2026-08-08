@@ -4,11 +4,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
+import ReviewBox from "../ui/ReviewBox";
+import ReviewsPanel from "../ui/ReviewsPanel";
 
 const edukasi = [
-  { numeral: "I", title: "Ecoprint", desc: "pengalaman unik mencetak keindahan alam pada kain.", image: "/images/edukasi/eco print 1.webp" },
-  { numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/hiasan1.webp" },
-  { numeral: "III", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/study tour1.webp" },
+  { slug: "ecoprint", numeral: "I", title: "Ecoprint", desc: "Pengalaman unik mencetak keindahan alam pada kain.", image: "/images/edukasi/eco print 1.webp" },
+  { slug: "heritage-sejarah-kolonial", numeral: "II", title: "Heritage & Sejarah Kolonial", desc: "Menelusuri jejak arsitektur Villa Van Resink yang berdiri sejak masa kolonial, lengkap dengan cerita di balik tiap sudut bangunannya.", image: "/images/edukasi/hiasan1.webp" },
+  { slug: "study-tour-sekolah", numeral: "III", title: "Study Tour Sekolah", desc: "Paket kunjungan yang disusun mengikuti kurikulum, cocok untuk rombongan pelajar dari tingkat TK hingga SMA.", image: "/images/edukasi/study tour1.webp" },
 ];
 
 export default function Edukasi() {
@@ -19,7 +21,7 @@ export default function Edukasi() {
         <SectionTitle
           eyebrow="Catatan Lapangan"
           title="Program Edukasi"
-          description="Tiga halaman dari jurnal kebun kami — pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
+          description="Tiga halaman dari jurnal kebun kami â€” pengalaman belajar yang disusun untuk keluarga, pelajar, dan siapa pun yang penasaran."
         />
 
         <div className="relative mt-24">
@@ -35,12 +37,12 @@ export default function Edukasi() {
               return (
 
                 <motion.div
-                  key={item.title}
+                  key={item.slug}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.15 }}
                   transition={{ duration: .7 }}
-                  className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${reversed ? "lg:[&>*:first-child]:order-2" : ""}`}
+                  className={`grid items-start gap-10 lg:grid-cols-2 lg:gap-20 ${reversed ? "lg:[&>*:first-child]:order-2" : ""}`}
                 >
 
                   <div className="relative h-[320px] overflow-hidden rounded-[6px] border border-[#8A6E4A]/25 p-1.5 sm:h-[400px]">
@@ -61,9 +63,11 @@ export default function Edukasi() {
                       <span className="font-heading text-lg text-[#8A6E4A]">{item.numeral}</span>
                     </div>
 
-                    <h3 className="mt-6 font-heading text-4xl text-[#2F2B27]">{item.title}</h3>
+                    <h3 className="mt-6 font-heading text-4xl text-[#23412D]">{item.title}</h3>
                     <div className="mt-4 h-px w-12 bg-[#8A6E4A]/50" />
                     <p className="mt-5 max-w-md leading-8 text-neutral-600">{item.desc}</p>
+
+                    <ReviewBox layananId={1} targetLabel={item.title} />
 
                   </div>
 
@@ -77,7 +81,13 @@ export default function Edukasi() {
 
         </div>
 
+        <ReviewsPanel title="Ulasan Program Edukasi Terfavorit"
+          items={edukasi.map((e) => ({ slug: e.slug, label: e.title, image: e.image }))}
+        />
+
       </Container>
     </section>
   );
 }
+
+

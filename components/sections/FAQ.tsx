@@ -29,7 +29,7 @@ const faq = [
   },
   {
     q: "Jam operasional Villa Van Resink?",
-    a: "Buka setiap hari pukul 08.00–17.00 WIB. Untuk camping dan acara malam, silakan konfirmasi jadwal khusus lewat tim kami.",
+    a: "Buka setiap hari pukul 08.00â€“17.00 WIB. Untuk camping dan acara malam, silakan konfirmasi jadwal khusus lewat tim kami.",
   },
 ];
 
