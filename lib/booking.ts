@@ -19,6 +19,7 @@ export interface Booking extends RowDataPacket {
 
   nama_layanan?: string;
   nama_user?: string;
+  layanan_slug?: string;
 }
 
 export async function createBooking(
@@ -26,7 +27,7 @@ export async function createBooking(
   layananId: number,
   checkIn: string,
   checkOut: string,
-  jumlahOrang: number
+  jumlahOrang: number,
 ) {
   const [result] = await pool.query<ResultSetHeader>(
     `
@@ -41,13 +42,7 @@ export async function createBooking(
     )
     VALUES (?,?,?,?,?,'pending')
     `,
-    [
-      userId,
-      layananId,
-      checkIn,
-      checkOut,
-      jumlahOrang,
-    ]
+    [userId, layananId, checkIn, checkOut, jumlahOrang],
   );
 
   return result.insertId;
@@ -58,14 +53,16 @@ export async function getBookingsByUser(userId: number) {
     `
     SELECT
       b.*,
-      l.nama AS nama_layanan
+      l.nama AS nama_layanan,
+      l.slug AS layanan_slug
+      
     FROM booking b
     JOIN layanan_villa l
       ON l.id = b.layanan_id
     WHERE b.user_id=?
     ORDER BY b.created_at DESC
     `,
-    [userId]
+    [userId],
   );
 
   return rows;
@@ -77,14 +74,15 @@ export async function getAllBookings() {
     SELECT
       b.*,
       u.nama AS nama_user,
-      l.nama AS nama_layanan
+      l.nama AS nama_layanan,
+      1.slug AS layanan_slug
     FROM booking b
     JOIN users u
       ON u.id=b.user_id
     JOIN layanan_villa l
       ON l.id=b.layanan_id
     ORDER BY b.created_at DESC
-    `
+    `,
   );
 
   return rows;
@@ -92,7 +90,7 @@ export async function getAllBookings() {
 
 export async function updateBookingStatus(
   id: number,
-  status: Booking["status"]
+  status: Booking["status"],
 ) {
   await pool.query(
     `
@@ -100,18 +98,16 @@ export async function updateBookingStatus(
     SET status=?
     WHERE id=?
     `,
-    [status, id]
+    [status, id],
   );
 }
 
-export async function deleteBooking(
-  id: number
-) {
+export async function deleteBooking(id: number) {
   await pool.query(
     `
     DELETE FROM booking
     WHERE id=?
     `,
-    [id]
+    [id],
   );
 }

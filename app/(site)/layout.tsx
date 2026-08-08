@@ -4,6 +4,7 @@
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/sections/Footer";
+import PromoPopup from "@/components/PromoPopup";
 
 export default function SiteLayout({
   children,
@@ -13,6 +14,7 @@ export default function SiteLayout({
   return (
     <>
       <Header />
+      <PromoPopup />
       {children}
       <Footer />
     </>

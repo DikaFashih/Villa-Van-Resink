@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { login } from "@/lib/auth";
 
 export default function LoginForm() {
-
   const router = useRouter();
   const params = useSearchParams();
 
@@ -16,43 +15,40 @@ export default function LoginForm() {
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
-
     e.preventDefault();
 
-    const result = await login(
-      email,
-      password
-    );
+    const result = await login(email, password);
 
     if (!result.ok) {
       setError(result.error ?? "Login gagal");
       return;
     }
 
-    router.push(redirect);
-    router.refresh();
+    const role = result.user?.role;
 
+    if (role === "admin" || role === "superadmin") {
+      router.push("/admin");
+    } else {
+      router.push(redirect);
+    }
+
+    router.refresh();
   }
 
   return (
-
     <div className="flex min-h-screen items-center justify-center p-6">
-
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl"
       >
-
-        <h1 className="mb-8 text-center text-3xl font-bold">
-          Login
-        </h1>
+        <h1 className="mb-8 text-center text-3xl font-bold">Login</h1>
 
         <input
           className="mb-4 w-full rounded-lg border p-3"
           placeholder="Email"
           type="email"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 
@@ -61,7 +57,7 @@ export default function LoginForm() {
           placeholder="Password"
           type="password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
 
@@ -80,16 +76,14 @@ export default function LoginForm() {
 
         <button
           type="button"
-          onClick={() => router.push(`/register?redirect=${encodeURIComponent(redirect)}`)}
+          onClick={() =>
+            router.push(`/register?redirect=${encodeURIComponent(redirect)}`)
+          }
           className="mt-3 w-full rounded-lg border py-3"
         >
           Buat Akun
         </button>
-
       </form>
-
     </div>
-
   );
-
 }

@@ -4,13 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import StarRating from "./StarRating";
 import ReviewModal from "./ReviewModal";
-import {
-  getGroupedSummaries,
-  getReviewsFor,
-
-  type Review,
-
-} from "@/lib/reviews";
+import { getGroupedSummaries, getReviewsFor, type Review } from "@/lib/reviews";
 
 interface ReviewsPanelItem {
   slug: string;
@@ -18,29 +12,42 @@ interface ReviewsPanelItem {
   image: string;
 }
 
+interface ReviewSummary {
+  layananSlug: string;
+  layananNama: string;
+  averageRating: number;
+  count: number;
+}
+
 interface Props {
-  
   title?: string;
   items: ReviewsPanelItem[];
 }
 
-export default function ReviewsPanel({ title = "Ulasan Pengunjung", items }: Props) {
-  const [summaries, setSummaries] = useState<any[]>([]);
-const [active, setActive] = useState<ReviewsPanelItem | null>(null);
-const [activeReviews, setActiveReviews] = useState<Review[]>([]);
+export default function ReviewsPanel({
+  title = "Ulasan Pengunjung",
+  items,
+}: Props) {
+  const [summaries, setSummaries] = useState<ReviewSummary[]>([]);
+  const [active, setActive] = useState<ReviewsPanelItem | null>(null);
+  const [activeReviews, setActiveReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-  async function load() {
-    const data = await getGroupedSummaries();
-    setSummaries(data);
-  }
-
-  load();
-}, []);
-
-  if (summaries.length === 0) return null;
+    async function load() {
+      const data = await getGroupedSummaries();
+      setSummaries(data);
+    }
+    load();
+  }, []);
 
   const imageBySlug = new Map(items.map((i) => [i.slug, i.image]));
+
+  // ⬅️ PERUBAHAN: filter summaries supaya cuma menampilkan slug yang ada di items halaman ini
+  const filteredSummaries = summaries
+    .filter((s) => imageBySlug.has(s.layananSlug))
+    .sort((a, b) => b.averageRating - a.averageRating);
+
+  if (filteredSummaries.length === 0) return null; // ⬅️ PERUBAHAN: cek filteredSummaries, bukan summaries
 
   const openModal = (slug: string, label: string) => {
     const image = imageBySlug.get(slug) ?? "";
@@ -51,10 +58,12 @@ const [activeReviews, setActiveReviews] = useState<Review[]>([]);
   return (
     <div className="mt-16 rounded-[24px] border border-[#8A6E4A]/25 bg-[#FBF8F2] p-8">
       <p className="font-heading text-2xl text-[#23412D]">{title}</p>
-      <p className="mt-1 text-xs text-neutral-500">Diurutkan dari rating tertinggi</p>
+      <p className="mt-1 text-xs text-neutral-500">
+        Diurutkan dari rating tertinggi
+      </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {summaries.map((s) => {
+        {filteredSummaries.map((s) => {
           const image = imageBySlug.get(s.layananSlug);
           return (
             <button
@@ -75,9 +84,15 @@ const [activeReviews, setActiveReviews] = useState<Review[]>([]);
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-[#23412D]">{s.layananNama}</p>
+                <p className="truncate text-sm font-medium text-[#23412D]">
+                  {s.layananNama}
+                </p>
                 <div className="mt-1 flex items-center gap-1.5">
-                  <StarRating value={Math.round(s.averageRating)} readOnly size={13} />
+                  <StarRating
+                    value={Math.round(s.averageRating)}
+                    readOnly
+                    size={13}
+                  />
                   <span className="text-xs text-neutral-500">
                     {s.averageRating.toFixed(1)} ({s.count})
                   </span>
@@ -87,18 +102,6 @@ const [activeReviews, setActiveReviews] = useState<Review[]>([]);
           );
         })}
       </div>
-
-      
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-

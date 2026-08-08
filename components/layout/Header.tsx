@@ -65,7 +65,11 @@ export default function Header() {
 
             <DesktopNav dark={scrolled} />
 
-            <MenuButton open={mobileOpen} onClick={() => setMobileOpen((v) => !v)} dark={scrolled} />
+            <MenuButton
+              open={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+              dark={scrolled}
+            />
           </div>
         </Container>
       </header>
@@ -74,5 +78,3 @@ export default function Header() {
     </>
   );
 }
-
-

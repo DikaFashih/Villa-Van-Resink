@@ -1,6 +1,6 @@
 export interface Review {
   id: number;
-  bookingId: number;
+  bookingId: number | null;
   userId: number;
   nama: string;
   layananId: number;
@@ -13,81 +13,57 @@ export interface Review {
 }
 
 export async function getAllReviews(): Promise<Review[]> {
-
-  const res = await fetch("/api/reviews");
-
+  const res = await fetch("/api/reviews", { cache: "no-store" });
   if (!res.ok) {
     return [];
   }
-
   return await res.json();
-
 }
 
 export async function getReviewsFor(
-  layananId: number
+  layananIdentifier: number | string,
 ): Promise<Review[]> {
-
   const all = await getAllReviews();
-
-  return all.filter(
-    (r) =>
-      r.layananId === layananId &&
-      r.status === "approved"
-  );
-
-}
-
-export async function getAverageRating(
-  layananId: number
-): Promise<number> {
-
-  const reviews = await getReviewsFor(
-    layananId
-  );
-
-  if (reviews.length === 0) {
-    return 0;
-  }
-
-  return (
-    reviews.reduce(
-      (sum, r) => sum + r.rating,
-      0
-    ) / reviews.length
-  );
-
+  return all.filter((r) => {
+    if (typeof layananIdentifier === "number") {
+      return r.layananId === layananIdentifier && r.status === "approved";
+    }
+    return r.layananSlug === layananIdentifier && r.status === "approved";
+  });
 }
 
 export async function addReview(data: {
-  bookingId: number;
+  bookingId?: number | null;
   userId: number;
-  layananId: number;
+  layananSlug?: string;
+  layananId?: number;
   rating: number;
   komentar: string;
 }) {
+  const res = await fetch("/api/reviews", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...data,
+      bookingId: data.bookingId ?? null,
+    }),
+  });
 
-  const res = await fetch(
-    "/api/reviews",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const json = await res.json();
 
-  return await res.json();
+  if (!res.ok) {
+    throw new Error(json.error || "Gagal mengirim ulasan");
+  }
 
+  return json;
 }
 
 export async function updateReviewStatus(
   id: number,
-  status: "pending" | "approved" | "rejected"
+  status: "pending" | "approved" | "rejected",
 ) {
-
   await fetch(`/api/reviews/${id}`, {
     method: "PATCH",
     headers: {
@@ -97,23 +73,16 @@ export async function updateReviewStatus(
       status,
     }),
   });
-
 }
 
-export async function removeReview(
-  id: number
-) {
-
+export async function removeReview(id: number) {
   await fetch(`/api/reviews/${id}`, {
     method: "DELETE",
   });
-
 }
 
 export async function getAllRawReviews(): Promise<Review[]> {
-
   return await getAllReviews();
-
 }
 
 export interface ReviewSummary {
@@ -125,12 +94,8 @@ export interface ReviewSummary {
 }
 
 export async function getGroupedSummaries(): Promise<ReviewSummary[]> {
-
   const reviews = await getAllReviews();
-
-  const approved = reviews.filter(
-    (r) => r.status === "approved"
-  );
+  const approved = reviews.filter((r) => r.status === "approved");
 
   const map = new Map<
     number,
@@ -143,7 +108,6 @@ export async function getGroupedSummaries(): Promise<ReviewSummary[]> {
   >();
 
   for (const review of approved) {
-
     const current = map.get(review.layananId) ?? {
       layananNama: review.layananNama,
       layananSlug: review.layananSlug,
@@ -155,18 +119,13 @@ export async function getGroupedSummaries(): Promise<ReviewSummary[]> {
     current.count++;
 
     map.set(review.layananId, current);
-
   }
 
-  return Array.from(map.entries()).map(
-    ([layananId, value]) => ({
-      layananId,
-      layananNama: value.layananNama,
-      layananSlug: value.layananSlug,
-      averageRating:
-        value.total / value.count,
-      count: value.count,
-    })
-  );
-
+  return Array.from(map.entries()).map(([layananId, value]) => ({
+    layananId,
+    layananNama: value.layananNama,
+    layananSlug: value.layananSlug,
+    averageRating: value.total / value.count,
+    count: value.count,
+  }));
 }

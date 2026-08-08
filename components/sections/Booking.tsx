@@ -8,11 +8,7 @@ import { FileText, ShieldCheck } from "lucide-react";
 import Container from "../ui/Container";
 import { Button } from "../ui/Button";
 
-import {
-  getCurrentUser,
-  subscribeToAuth,
-  type AuthUser,
-} from "@/lib/auth";
+import { getCurrentUser, subscribeToAuth, type AuthUser } from "@/lib/auth";
 
 const platformOTA = [
   {
@@ -37,16 +33,16 @@ export default function Booking() {
 
   const [user, setUser] = useState<AuthUser | null>(null);
 
-useEffect(() => {
-  async function loadUser() {
-    const current = await getCurrentUser();
-    setUser(current);
-  }
+  useEffect(() => {
+    async function loadUser() {
+      const current = await getCurrentUser();
+      setUser(current);
+    }
 
-  loadUser();
+    loadUser();
 
-  return subscribeToAuth(loadUser);
-}, []);
+    return subscribeToAuth(loadUser);
+  }, []);
 
   const handleBookingClick = () => {
     if (!user) {
@@ -62,7 +58,10 @@ useEffect(() => {
   };
 
   return (
-    <section className="bg-[#23412D] py-20 text-white sm:py-28 lg:py-32">
+    <section
+      id="booking"
+      className="bg-[#23412D] py-20 text-white sm:py-28 lg:py-32"
+    >
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -76,8 +75,8 @@ useEffect(() => {
           </p>
 
           <h2 className="font-heading text-5xl leading-tight text-[#D4AF37] md:text-6xl">
-             Rencanakan Kunjungan Anda
-          </h2> 
+            Rencanakan Kunjungan Anda
+          </h2>
 
           <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-white/80">
             Pesan kamar melalui platform booking pilihan Anda atau lakukan
@@ -102,8 +101,8 @@ useEffect(() => {
             >
               <div>
                 <h3 className="font-heading text-2xl text-[#D4AF37]">
-                {item.nama}
-              </h3>
+                  {item.nama}
+                </h3>
 
                 <p className="mt-2 text-sm leading-6 text-white/70">
                   {item.ket}

@@ -10,7 +10,6 @@ import { getSessionUser } from "@/lib/session";
 
 export async function GET() {
   try {
-
     const user = await getSessionUser();
 
     if (!user) {
@@ -21,22 +20,17 @@ export async function GET() {
         },
         {
           status: 401,
-        }
+        },
       );
     }
 
-    if (
-      user.role === "admin" ||
-      user.role === "superadmin"
-    ) {
-
+    if (user.role === "admin" || user.role === "superadmin") {
       const bookings = await getAllBookings();
 
       return NextResponse.json({
         ok: true,
         bookings,
       });
-
     }
 
     const bookings = await getBookingsByUser(user.id);
@@ -45,9 +39,7 @@ export async function GET() {
       ok: true,
       bookings,
     });
-
   } catch {
-
     return NextResponse.json(
       {
         ok: false,
@@ -55,18 +47,13 @@ export async function GET() {
       },
       {
         status: 500,
-      }
+      },
     );
-
   }
 }
 
-export async function POST(
-  request: NextRequest
-) {
-
+export async function POST(request: NextRequest) {
   try {
-
     const user = await getSessionUser();
 
     if (!user) {
@@ -77,14 +64,13 @@ export async function POST(
         },
         {
           status: 401,
-        }
+        },
       );
     }
 
     const body = await request.json();
 
     const bookingId = await createBooking(
-
       user.id,
 
       body.layanan_id,
@@ -93,20 +79,16 @@ export async function POST(
 
       body.check_out,
 
-      body.jumlah_orang
-
+      body.jumlah_orang,
     );
 
     return NextResponse.json({
-
       ok: true,
 
       bookingId,
-
     });
-
-  } catch {
-
+  } catch (err) {
+    console.error("Error createBooking:", err);
     return NextResponse.json(
       {
         ok: false,
@@ -114,9 +96,7 @@ export async function POST(
       },
       {
         status: 500,
-      }
+      },
     );
-
   }
-
 }
