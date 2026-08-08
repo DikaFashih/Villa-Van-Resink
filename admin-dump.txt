@@ -1,0 +1,1930 @@
+﻿
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminBookingTab.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
+
+type BookingStatus =
+  | "pending"
+  | "diproses"
+  | "diterima"
+  | "ditolak"
+  | "selesai"
+  | "dibatalkan";
+
+interface Booking {
+  id: number;
+  nama_user: string;
+  nama_layanan: string;
+  check_in: string;
+  check_out: string;
+  jumlah_orang: number;
+  status: BookingStatus;
+}
+
+const STATUS: BookingStatus[] = [
+  "pending",
+  "diproses",
+  "diterima",
+  "ditolak",
+  "selesai",
+  "dibatalkan",
+];
+
+const badge: Record<BookingStatus, string> = {
+  pending: "bg-yellow-100 text-yellow-700",
+  diproses: "bg-blue-100 text-blue-700",
+  diterima: "bg-green-100 text-green-700",
+  ditolak: "bg-red-100 text-red-700",
+  selesai: "bg-emerald-100 text-emerald-700",
+  dibatalkan: "bg-neutral-200 text-neutral-700",
+};
+
+export default function AdminBookingTab() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function loadBookings() {
+    try {
+      const res = await fetch("/api/booking");
+      const data = await res.json();
+      if (data.ok) setBookings(data.bookings);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadBookings();
+  }, []);
+
+  async function changeStatus(id: number, status: BookingStatus) {
+    await fetch(`/api/booking/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    await loadBookings();
+  }
+
+  async function removeBooking(id: number) {
+    if (!confirm("Hapus booking ini?")) return;
+
+    await fetch(`/api/booking/${id}`, {
+      method: "DELETE",
+    });
+
+    await loadBookings();
+  }
+
+  if (loading) {
+    return (
+      <div className="rounded-xl bg-white p-8 shadow-sm">
+        Memuat booking...
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <h2 className="mb-6 text-2xl font-semibold text-[#23412D]">
+        Manajemen Booking
+      </h2>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="px-3 py-3 text-left">User</th>
+              <th className="px-3 py-3 text-left">Layanan</th>
+              <th className="px-3 py-3 text-left">Check In</th>
+              <th className="px-3 py-3 text-left">Check Out</th>
+              <th className="px-3 py-3 text-center">Orang</th>
+              <th className="px-3 py-3 text-center">Status</th>
+              <th className="px-3 py-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {bookings.map((b) => (
+              <tr key={b.id} className="border-b">
+                <td className="px-3 py-4">{b.nama_user}</td>
+                <td className="px-3 py-4">{b.nama_layanan}</td>
+                <td className="px-3 py-4">{b.check_in}</td>
+                <td className="px-3 py-4">{b.check_out}</td>
+                <td className="px-3 py-4 text-center">{b.jumlah_orang}</td>
+                <td className="px-3 py-4 text-center">
+                  <select
+                    value={b.status}
+                    onChange={(e) =>
+                      changeStatus(
+                        b.id,
+                        e.target.value as BookingStatus
+                      )
+                    }
+                    className={`rounded-md px-2 py-1 ${badge[b.status]}`}
+                  >
+                    {STATUS.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-3 py-4 text-center">
+                  <button
+                    onClick={() => removeBooking(b.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {bookings.length === 0 && (
+          <p className="py-6 text-center text-neutral-500">
+            Belum ada booking.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminPaketTab.tsx =====
+"use client";
+
+import { useState } from "react";
+import {
+  CalendarDays,
+  Package,
+  MessageCircle,
+  Star,
+  Users,
+  LayoutDashboard,
+} from "lucide-react";
+
+import DashboardShell from "./DashboardShell";
+
+import AdminBookingTab from "./AdminBookingTab";
+import AdminPaketTab from "./AdminPaketTab";
+import AdminReviewsTab from "./AdminReviewsTab";
+import AdminQuestionTab from "./AdminQuestionTab";
+import AdminUsersTab from "./AdminUsersTab";
+
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  function renderContent() {
+    switch (activeTab) {
+      case "booking":
+        return <AdminBookingTab />;
+
+      case "paket":
+        return <AdminPaketTab />;
+
+      case "review":
+        return <AdminReviewsTab />;
+
+      case "pertanyaan":
+        return <AdminQuestionTab />;
+
+      case "admin":
+        return <AdminUsersTab />;
+
+      default:
+        return (
+          <div className="space-y-8">
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">
+                  Total Booking
+                </p>
+
+                <h2 className="mt-3 text-4xl font-bold text-[#23412D]">
+                  --
+                </h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">
+                  Pending
+                </p>
+
+                <h2 className="mt-3 text-4xl font-bold text-amber-600">
+                  --
+                </h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">
+                  Review
+                </p>
+
+                <h2 className="mt-3 text-4xl font-bold text-green-600">
+                  --
+                </h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">
+                  User
+                </p>
+
+                <h2 className="mt-3 text-4xl font-bold text-blue-600">
+                  --
+                </h2>
+              </div>
+
+            </div>
+
+            <div className="rounded-2xl bg-white p-8 shadow-sm">
+
+              <h2 className="text-2xl font-semibold text-[#23412D]">
+
+                Dashboard Admin
+
+              </h2>
+
+              <p className="mt-3 text-neutral-500">
+
+                Selamat datang di Dashboard Admin Villa Van Resink.
+
+              </p>
+
+              <div className="mt-8 rounded-xl border border-dashed border-neutral-300 p-6 text-neutral-500">
+
+                Statistik realtime akan otomatis muncul setelah seluruh API
+                Booking, Review, User dan Pertanyaan selesai dihubungkan ke
+                MySQL.
+
+              </div>
+
+            </div>
+
+          </div>
+        );
+    }
+  }
+
+  return (
+    <DashboardShell
+      portalLabel="Villa Van Resink"
+      roleLabel="Administrator"
+      userName="Administrator"
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      onLogout={() => {
+        window.location.href = "/";
+      }}
+      navItems={[
+        {
+          key: "dashboard",
+          label: "Dashboard",
+          icon: LayoutDashboard,
+        },
+        {
+          key: "booking",
+          label: "Booking",
+          icon: CalendarDays,
+        },
+        {
+          key: "paket",
+          label: "Paket",
+          icon: Package,
+        },
+        {
+          key: "review",
+          label: "Review",
+          icon: Star,
+        },
+        {
+          key: "pertanyaan",
+          label: "Pertanyaan",
+          icon: MessageCircle,
+        },
+        {
+          key: "admin",
+          label: "Admin",
+          icon: Users,
+        },
+      ]}
+    >
+      {renderContent()}
+    </DashboardShell>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminPromoTab.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+
+interface Promo {
+  id: number;
+  paketSlug: string;
+  judul: string;
+  deskripsi: string;
+  diskonPersen: number;
+  aktif: number | boolean;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+}
+
+export default function AdminPromoTab() {
+  const [items, setItems] = useState<Promo[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const [form, setForm] = useState({
+    paketSlug: "",
+    judul: "",
+    deskripsi: "",
+    diskonPersen: "",
+    tanggalMulai: "",
+    tanggalSelesai: "",
+  });
+
+  async function load() {
+    const res = await fetch("/api/promo");
+    const data = await res.json();
+    setItems(Array.isArray(data) ? data : []);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function resetForm() {
+    setForm({ paketSlug: "", judul: "", deskripsi: "", diskonPersen: "", tanggalMulai: "", tanggalSelesai: "" });
+    setEditingId(null);
+    setShowForm(false);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    const payload = {
+      paketSlug: form.paketSlug,
+      judul: form.judul,
+      deskripsi: form.deskripsi,
+      diskonPersen: Number(form.diskonPersen),
+      aktif: true,
+      tanggalMulai: form.tanggalMulai,
+      tanggalSelesai: form.tanggalSelesai,
+    };
+
+    if (editingId) {
+      await fetch(`/api/promo/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      await fetch("/api/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    await load();
+    resetForm();
+  }
+
+  function startEdit(p: Promo) {
+    setForm({
+      paketSlug: p.paketSlug,
+      judul: p.judul,
+      deskripsi: p.deskripsi,
+      diskonPersen: String(p.diskonPersen),
+      tanggalMulai: p.tanggalMulai?.slice(0, 10) ?? "",
+      tanggalSelesai: p.tanggalSelesai?.slice(0, 10) ?? "",
+    });
+    setEditingId(p.id);
+    setShowForm(true);
+  }
+
+  async function handleDelete(id: number) {
+    if (!confirm("Hapus promo ini?")) return;
+    await fetch(`/api/promo/${id}`, { method: "DELETE" });
+    await load();
+  }
+
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-[#23412D]">Kelola Promo</h2>
+
+        <button
+          onClick={() => {
+            resetForm();
+            setShowForm((v) => !v);
+          }}
+          className="flex items-center gap-2 rounded-lg bg-[#23412D] px-4 py-2 text-sm text-white hover:bg-[#1a3022]"
+        >
+          <Plus size={16} />
+          Tambah Data
+        </button>
+      </div>
+
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="mb-6 grid gap-3 rounded-xl border border-neutral-200 p-5 sm:grid-cols-2"
+        >
+          <input
+            placeholder="Slug Paket (mis. kolam-renang-air-hangat)"
+            required
+            value={form.paketSlug}
+            onChange={(e) => setForm({ ...form, paketSlug: e.target.value })}
+            className="rounded-md border p-2 text-sm sm:col-span-2"
+          />
+          <input
+            placeholder="Judul Promo"
+            required
+            value={form.judul}
+            onChange={(e) => setForm({ ...form, judul: e.target.value })}
+            className="rounded-md border p-2 text-sm"
+          />
+          <input
+            type="number"
+            placeholder="Diskon (%)"
+            required
+            value={form.diskonPersen}
+            onChange={(e) => setForm({ ...form, diskonPersen: e.target.value })}
+            className="rounded-md border p-2 text-sm"
+          />
+          <input
+            type="date"
+            required
+            value={form.tanggalMulai}
+            onChange={(e) => setForm({ ...form, tanggalMulai: e.target.value })}
+            className="rounded-md border p-2 text-sm"
+          />
+          <input
+            type="date"
+            required
+            value={form.tanggalSelesai}
+            onChange={(e) => setForm({ ...form, tanggalSelesai: e.target.value })}
+            className="rounded-md border p-2 text-sm"
+          />
+          <textarea
+            placeholder="Deskripsi"
+            value={form.deskripsi}
+            onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
+            className="rounded-md border p-2 text-sm sm:col-span-2"
+          />
+
+          <div className="flex gap-2 sm:col-span-2">
+            <button type="submit" className="rounded-md bg-[#23412D] px-4 py-2 text-sm text-white">
+              {editingId ? "Simpan Perubahan" : "Simpan"}
+            </button>
+            <button type="button" onClick={resetForm} className="rounded-md border px-4 py-2 text-sm">
+              Batal
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="border-b text-left">
+              <th className="px-3 py-3">Judul</th>
+              <th className="px-3 py-3">Deskripsi</th>
+              <th className="px-3 py-3">Status</th>
+              <th className="px-3 py-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((p) => (
+              <tr key={p.id} className="border-b">
+                <td className="px-3 py-4 font-medium text-[#23412D]">{p.judul}</td>
+                <td className="px-3 py-4 text-neutral-600">{p.deskripsi}</td>
+                <td className="px-3 py-4">
+                  <span className={`rounded-full px-2 py-1 text-xs ${p.aktif ? "bg-green-100 text-green-700" : "bg-neutral-200 text-neutral-600"}`}>
+                    {p.aktif ? "Aktif" : "Nonaktif"}
+                  </span>
+                </td>
+                <td className="px-3 py-4">
+                  <div className="flex justify-center gap-3">
+                    <button onClick={() => startEdit(p)} className="text-blue-600 hover:text-blue-800">
+                      <Pencil size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(p.id)} className="text-red-600 hover:text-red-800">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {items.length === 0 && (
+          <p className="py-6 text-center text-neutral-500">Belum ada promo.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminQuestionTab.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import { MessageCircleQuestion } from "lucide-react";
+import {
+  getAllQuestions,
+  answerQuestion,
+  type Question,
+} from "@/lib/question";
+
+export default function AdminQuestionTab() {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [jawabanInput, setJawabanInput] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+  async function loadQuestions() {
+    const data = await getAllQuestions();
+    setQuestions(data);
+  }
+
+  loadQuestions();
+}, []);
+
+  const handleAnswer = async (id: string) => {
+    const jawaban = jawabanInput[id]?.trim();
+    if (!jawaban) return;
+    await answerQuestion(id, jawaban);
+
+    const data = await getAllQuestions();
+setQuestions(data);
+
+    setJawabanInput((prev) => ({
+      ...prev,
+      [id]: "",
+    }));
+  };
+
+  const belumDijawab = questions.filter((q) => !q.jawaban);
+  const sudahDijawab = questions.filter((q) => q.jawaban);
+
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-[#8A6E4A]">
+        Menunggu Jawaban ({belumDijawab.length})
+      </p>
+
+      <div className="mt-3 space-y-3">
+        {belumDijawab.map((q) => (
+          <div key={q.id} className="rounded-lg border border-amber-200 bg-amber-50/50 p-4">
+            <div className="flex items-start gap-2">
+              <MessageCircleQuestion size={16} className="mt-0.5 shrink-0 text-[#8A6E4A]" />
+              <div className="min-w-0">
+                <p className="text-sm text-[#23412D]">{q.pertanyaan}</p>
+                <p className="mt-1 text-xs text-neutral-500">
+                  {q.userNama} Ã‚Â· {new Date(q.createdAt).toLocaleDateString("id-ID")}
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <input
+                value={jawabanInput[q.id] || ""}
+                onChange={(e) => setJawabanInput((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                placeholder="Tulis jawaban..."
+                className="flex-1 rounded-md border border-[#8A6E4A]/25 px-3 py-2 text-sm outline-none"
+              />
+              <button
+                onClick={() => handleAnswer(q.id)}
+                className="rounded-md bg-[#23412D] px-4 text-sm text-white hover:bg-[#1a3022]"
+              >
+                Kirim
+              </button>
+            </div>
+          </div>
+        ))}
+        {belumDijawab.length === 0 && (
+          <p className="text-sm text-neutral-500">Tidak ada pertanyaan yang menunggu jawaban.</p>
+        )}
+      </div>
+
+      {sudahDijawab.length > 0 && (
+        <>
+          <p className="mt-8 text-xs uppercase tracking-wide text-[#8A6E4A]">
+            Sudah Dijawab ({sudahDijawab.length})
+          </p>
+          <div className="mt-3 space-y-3">
+            {sudahDijawab.map((q) => (
+              <div key={q.id} className="rounded-lg border border-[#8A6E4A]/20 bg-white p-4">
+                <p className="text-sm text-[#23412D]">{q.pertanyaan}</p>
+                <p className="mt-1 text-xs text-neutral-500">
+                  {q.userNama} Ã‚Â· {new Date(q.createdAt).toLocaleDateString("id-ID")}
+                </p>
+                <p className="mt-2 rounded-md bg-[#F7F2EA] p-3 text-sm text-neutral-700">
+                  <span className="font-medium text-[#8A6E4A]">Jawaban Anda:</span> {q.jawaban}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminReviewsTab.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import { Trash2, Star } from "lucide-react";
+import { getAllRawReviews, removeReview, type Review } from "@/lib/reviews";
+
+export default function AdminReviewsTab() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+  async function load() {
+    const data = await getAllRawReviews();
+    setReviews(data);
+  }
+
+  load();
+}, []);
+
+  return (
+    <div className="space-y-3">
+      {reviews.map((r) => (
+        <div key={r.id} className="flex items-start justify-between gap-4 rounded-lg border border-[#8A6E4A]/20 bg-white p-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-[#23412D]">{r.nama}</span>
+              <span className="text-xs uppercase tracking-wide text-[#8A6E4A]">{r.layananNama}</span>
+            </div>
+            <div className="mt-1 flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Star key={n} size={13} className={n <= r.rating ? "fill-[#8A6E4A] text-[#8A6E4A]" : "text-neutral-300"} />
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-neutral-600">{r.komentar}</p>
+          </div>
+          <button onClick={() => removeReview(r.id)} className="shrink-0 text-red-500 hover:text-red-700" title="Hapus ulasan">
+            <Trash2 size={17} />
+          </button>
+        </div>
+      ))}
+      {reviews.length === 0 && <p className="text-sm text-neutral-500">Belum ada ulasan.</p>}
+    </div>
+  );
+}
+
+
+
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\AdminUsersTab.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  getAllUsers,
+  createAdmin,
+  removeUser,
+  subscribeToAuth,
+  type AuthUser,
+} from "@/lib/auth";
+
+export default function AdminUsersTab() {
+  const [users, setUsers] = useState<AuthUser[]>([]);
+  const [showForm, setShowForm] = useState(false);
+
+  const [form, setForm] = useState({
+    nama: "",
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadUsers() {
+      const data = await getAllUsers();
+
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else if (Array.isArray(data.users)) {
+        setUsers(data.users);
+      }
+    }
+
+    loadUsers();
+
+    return subscribeToAuth(loadUsers);
+  }, []);
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault();
+
+    const result = await createAdmin(
+      form.nama,
+      form.email,
+      form.password
+    );
+
+    if (!result.ok) {
+      setError(result.error ?? "Gagal membuat admin");
+      return;
+    }
+
+    setForm({
+      nama: "",
+      email: "",
+      password: "",
+    });
+
+    setShowForm(false);
+    setError("");
+
+    const data = await getAllUsers();
+
+    if (Array.isArray(data)) {
+      setUsers(data);
+    } else if (Array.isArray(data.users)) {
+      setUsers(data.users);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    await removeUser(id);
+
+    const data = await getAllUsers();
+
+    if (Array.isArray(data)) {
+      setUsers(data);
+    } else if (Array.isArray(data.users)) {
+      setUsers(data.users);
+    }
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setShowForm(v => !v)}
+        className="flex items-center gap-2 rounded-lg bg-[#23412D] px-4 py-2 text-white"
+      >
+        <Plus size={16} />
+        Tambah Admin
+      </button>
+
+      {showForm && (
+        <form
+          onSubmit={handleAdd}
+          className="mt-5 grid gap-3 rounded-lg border p-5"
+        >
+          <input
+            placeholder="Nama"
+            value={form.nama}
+            onChange={(e)=>setForm({...form,nama:e.target.value})}
+          />
+
+          <input
+            placeholder="Email"
+            value={form.email}
+            onChange={(e)=>setForm({...form,email:e.target.value})}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e)=>setForm({...form,password:e.target.value})}
+          />
+
+          {error && (
+            <p className="text-red-500 text-sm">
+              {error}
+            </p>
+          )}
+
+          <button
+            className="rounded bg-[#23412D] py-2 text-white"
+          >
+            Simpan
+          </button>
+        </form>
+      )}
+
+      <div className="mt-6 space-y-3">
+        {users.map((u)=>(
+          <div
+            key={u.id}
+            className="flex items-center justify-between rounded border p-4"
+          >
+            <div>
+              <p>{u.nama}</p>
+              <p className="text-sm text-gray-500">
+                {u.email} â€¢ {u.role}
+              </p>
+            </div>
+
+            {u.role !== "superadmin" && (
+              <button
+                onClick={()=>handleDelete(u.id)}
+              >
+                <Trash2 size={18}/>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\DashboardShell.tsx =====
+"use client";
+
+import { LucideIcon, LogOut } from "lucide-react";
+
+interface NavItem {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: number;
+}
+
+interface Props {
+  portalLabel: string;
+  roleLabel: string;
+  navItems: NavItem[];
+  activeTab: string;
+  onTabChange: (key: string) => void;
+  userName: string;
+  onLogout: () => void;
+  children: React.ReactNode;
+}
+
+export default function DashboardShell({
+  portalLabel,
+  roleLabel,
+  navItems,
+  activeTab,
+  onTabChange,
+  userName,
+  onLogout,
+  children,
+}: Props) {
+  return (
+    <div className="min-h-screen bg-[#F7F3EC] pt-20 lg:flex">
+      {/* Sidebar â€” desktop */}
+      <aside className="hidden w-64 flex-shrink-0 flex-col bg-[#23412D] text-white lg:flex">
+        <div className="border-b border-white/10 px-6 py-6">
+          <p className="font-heading text-lg">{portalLabel}</p>
+          <span className="mt-1 inline-block rounded-full bg-white/10 px-3 py-1 text-[10px] uppercase tracking-widest text-white/70">
+            {roleLabel}
+          </span>
+        </div>
+
+        <nav className="flex-1 space-y-1 p-4">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = activeTab === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => onTabChange(item.key)}
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition ${
+                  active
+                    ? "border-l-2 border-[#C9A66B] bg-white/10 font-medium"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <Icon size={17} strokeWidth={1.5} />
+                <span className="flex-1">{item.label}</span>
+                {!!item.badge && item.badge > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-medium text-white">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-white/10 p-4">
+          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-sm font-medium">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <span className="flex-1 truncate text-sm">{userName}</span>
+            <button onClick={onLogout} className="text-white/60 hover:text-white" title="Keluar">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Nav â€” mobile, scroll horizontal di atas */}
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-[#8A6E4A]/20 bg-white px-4 py-3 lg:hidden">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = activeTab === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => onTabChange(item.key)}
+              className={`relative flex flex-none items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs transition ${
+                active ? "bg-[#23412D] text-white" : "bg-[#F7F2EA] text-[#23412D]"
+              }`}
+            >
+              <Icon size={14} strokeWidth={1.5} />
+              {item.label}
+              {!!item.badge && item.badge > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={onLogout}
+          className="ml-auto flex flex-none items-center gap-1 whitespace-nowrap rounded-full bg-red-50 px-3 py-2 text-xs text-red-600"
+          title="Keluar"
+        >
+          <LogOut size={14} strokeWidth={1.5} />
+          Keluar
+        </button>
+      </div>
+
+      {/* Konten */}
+      <div className="flex-1">
+        <header className="hidden items-center justify-between border-b border-[#8A6E4A]/20 bg-white px-8 py-5 lg:flex">
+          <p className="font-heading text-xl text-[#23412D]">
+            {navItems.find((n) => n.key === activeTab)?.label}
+          </p>
+          <span className="text-sm text-neutral-500">{userName}</span>
+        </header>
+
+        <main className="p-5 sm:p-8">{children}</main>
+      </div>
+    </div>
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\admin\page.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  CalendarDays,
+  Package,
+  MessageCircle,
+  Star,
+  Users,
+  LayoutDashboard,
+  Tag,
+} from "lucide-react";
+
+import DashboardShell from "./DashboardShell";
+import AdminBookingTab from "./AdminBookingTab";
+import AdminPaketTab from "./AdminPaketTab";
+import AdminPromoTab from "./AdminPromoTab";
+import AdminReviewsTab from "./AdminReviewsTab";
+import AdminQuestionTab from "./AdminQuestionTab";
+import AdminUsersTab from "./AdminUsersTab";
+
+import { getCurrentUser, logout, type AuthUser } from "@/lib/auth";
+
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  const [summary, setSummary] = useState({
+    paket: 0,
+    review: 0,
+    promo: 0,
+    pertanyaan: 0,
+  });
+
+  useEffect(() => {
+    async function loadUser() {
+      const current = await getCurrentUser();
+      setUser(current);
+    }
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    async function loadSummary() {
+      try {
+        const [layananRes, reviewRes, promoRes, questionRes] = await Promise.all([
+          fetch("/api/layanan"),
+          fetch("/api/reviews"),
+          fetch("/api/promo"),
+          fetch("/api/question"),
+        ]);
+
+        const layanan = await layananRes.json();
+        const review = await reviewRes.json();
+        const promo = await promoRes.json();
+        const question = await questionRes.json();
+
+        setSummary({
+          paket: Array.isArray(layanan) ? layanan.length : 0,
+          review: Array.isArray(review) ? review.length : 0,
+          promo: Array.isArray(promo) ? promo.filter((p: any) => p.aktif).length : 0,
+          pertanyaan: Array.isArray(question) ? question.length : 0,
+        });
+      } catch {
+        // biarkan default 0 kalau gagal
+      }
+    }
+
+    if (activeTab === "dashboard") {
+      loadSummary();
+    }
+  }, [activeTab]);
+
+  const navItems = [
+    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { key: "booking", label: "Booking", icon: CalendarDays },
+    { key: "paket", label: "Paket", icon: Package },
+    { key: "promo", label: "Promo", icon: Tag },
+    { key: "review", label: "Review", icon: Star },
+    { key: "pertanyaan", label: "Pertanyaan", icon: MessageCircle },
+  ];
+
+  if (user?.role === "superadmin") {
+    navItems.push({ key: "admin", label: "Admin", icon: Users });
+  }
+
+  function renderContent() {
+    switch (activeTab) {
+      case "booking":
+        return <AdminBookingTab />;
+      case "paket":
+        return <AdminPaketTab />;
+      case "promo":
+        return <AdminPromoTab />;
+      case "review":
+        return <AdminReviewsTab />;
+      case "pertanyaan":
+        return <AdminQuestionTab />;
+      case "admin":
+        return <AdminUsersTab />;
+      default:
+        return (
+          <div className="space-y-8">
+            <h2 className="font-heading text-2xl text-[#23412D]">Ringkasan Sistem</h2>
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">Total Wahana/Paket</p>
+                <h2 className="mt-3 text-4xl font-bold text-[#23412D]">{summary.paket}</h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">Ulasan Pengunjung</p>
+                <h2 className="mt-3 text-4xl font-bold text-amber-600">{summary.review}</h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">Promo Aktif</p>
+                <h2 className="mt-3 text-4xl font-bold text-green-600">{summary.promo}</h2>
+              </div>
+
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <p className="text-sm text-neutral-500">Pesan / Pertanyaan</p>
+                <h2 className="mt-3 text-4xl font-bold text-blue-600">{summary.pertanyaan}</h2>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  }
+
+  return (
+    <DashboardShell
+      portalLabel="Villa Van Resink"
+      roleLabel={user?.role === "superadmin" ? "Superadmin" : "Admin"}
+      userName={user?.nama ?? "Memuat..."}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      onLogout={async () => {
+        await logout();
+      }}
+      navItems={navItems}
+    >
+      {renderContent()}
+    </DashboardShell>
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\Button.tsx =====
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/cn";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-full transition-all duration-300 font-medium",
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-[#23412D] text-white hover:bg-[#1a3022] hover:-translate-y-1",
+
+        outline:
+          "border border-[#23412D] text-[#23412D] hover:bg-[#23412D] hover:text-white",
+
+        ghost:
+          "hover:bg-neutral-100",
+      },
+
+      size: {
+        sm: "h-10 px-5",
+
+        md: "h-12 px-7",
+
+        lg: "h-14 px-10 text-lg",
+      },
+    },
+
+    defaultVariants: {
+      variant: "primary",
+      size: "md",
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+
+export function Button({
+  className,
+  variant,
+  size,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={cn(
+        buttonVariants({
+          variant,
+          size,
+        }),
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\Container.tsx =====
+import React from "react";
+
+export default function Container({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`mx-auto max-w-7xl px-6 lg:px-8 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\Divider.tsx =====
+export default function Divider() {
+  return (
+    <div className="mx-auto my-28 h-px w-full max-w-7xl bg-neutral-200" />
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\GlassCard.tsx =====
+export default function GlassCard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="
+      rounded-[32px]
+      border
+      border-white/20
+      bg-white/60
+      backdrop-blur-xl
+      shadow-xl
+      p-8
+    ">
+      {children}
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\ImageCard.tsx =====
+import Image from "next/image";
+
+interface Props {
+  src: string;
+}
+
+export default function ImageCard({
+  src,
+}: Props) {
+  return (
+    <div className="relative overflow-hidden rounded-[32px]">
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover transition duration-700 hover:scale-110"
+      />
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\Reveal.tsx =====
+"use client";
+
+import { motion } from "framer-motion";
+
+export default function Reveal({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: 40,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+      }}
+      transition={{
+        duration: .8,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\ReviewBox.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+
+import StarRating from "./StarRating";
+
+import {
+  getReviewsFor,
+
+  type Review,
+
+} from "@/lib/reviews";
+
+interface Props {
+  layananId: number;
+  
+  targetLabel: string;
+}
+
+export default function ReviewBox({ layananId, targetLabel }: Props) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  useEffect(() => {
+  async function load() {
+    const data = await getReviewsFor(layananId);
+    setReviews(data);
+  }
+
+  load();
+}, [layananId]);
+
+  const average = reviews.length
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+    : 0;
+
+  return (
+    <div className="mt-5 border-t border-[#8A6E4A]/15 pt-5">
+      <div className="flex items-center justify-between gap-3">
+        
+
+        
+      </div>
+
+      
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\ReviewModal.tsx =====
+"use client";
+
+export default function ReviewModal() {
+  return null;
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\ReviewsPanel.tsx =====
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import StarRating from "./StarRating";
+import ReviewModal from "./ReviewModal";
+import {
+  getGroupedSummaries,
+  getReviewsFor,
+
+  type Review,
+
+} from "@/lib/reviews";
+
+interface ReviewsPanelItem {
+  slug: string;
+  label: string;
+  image: string;
+}
+
+interface Props {
+  
+  title?: string;
+  items: ReviewsPanelItem[];
+}
+
+export default function ReviewsPanel({ title = "Ulasan Pengunjung", items }: Props) {
+  const [summaries, setSummaries] = useState<any[]>([]);
+const [active, setActive] = useState<ReviewsPanelItem | null>(null);
+const [activeReviews, setActiveReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+  async function load() {
+    const data = await getGroupedSummaries();
+    setSummaries(data);
+  }
+
+  load();
+}, []);
+
+  if (summaries.length === 0) return null;
+
+  const imageBySlug = new Map(items.map((i) => [i.slug, i.image]));
+
+  const openModal = (slug: string, label: string) => {
+    const image = imageBySlug.get(slug) ?? "";
+    setActive({ slug, label, image });
+    // TODO: load review by layananId
+  };
+
+  return (
+    <div className="mt-16 rounded-[24px] border border-[#8A6E4A]/25 bg-[#FBF8F2] p-8">
+      <p className="font-heading text-2xl text-[#23412D]">{title}</p>
+      <p className="mt-1 text-xs text-neutral-500">Diurutkan dari rating tertinggi</p>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {summaries.map((s) => {
+          const image = imageBySlug.get(s.layananSlug);
+          return (
+            <button
+              key={s.layananSlug}
+              type="button"
+              onClick={() => openModal(s.layananSlug, s.layananNama)}
+              className="group flex items-center gap-4 rounded-[12px] border border-[#8A6E4A]/20 bg-white p-3 text-left transition hover:border-[#8A6E4A]/50"
+            >
+              {image && (
+                <div className="relative h-16 w-16 flex-none overflow-hidden rounded-[8px]">
+                  <Image
+                    src={image}
+                    alt={s.layananNama}
+                    fill
+                    sizes="64px"
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[#23412D]">{s.layananNama}</p>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <StarRating value={Math.round(s.averageRating)} readOnly size={13} />
+                  <span className="text-xs text-neutral-500">
+                    {s.averageRating.toFixed(1)} ({s.count})
+                  </span>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\SectionTitle.tsx =====
+"use client";
+
+import { motion } from "framer-motion";
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  center?: boolean;
+}
+
+export default function SectionTitle({
+  eyebrow,
+  title,
+  description,
+  center = false,
+}: Props) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: .6 }}
+      className={center ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}
+    >
+
+      {eyebrow && (
+        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[#8A6E4A] sm:text-sm sm:tracking-[0.4em]">
+          {eyebrow}
+        </p>
+      )}
+
+      <h2 className="font-heading text-3xl leading-tight text-[#23412D] sm:text-4xl lg:text-5xl">
+        {title}
+      </h2>
+
+      {description && (
+        <p className="mt-4 text-base leading-7 text-neutral-600 sm:mt-5 sm:text-lg sm:leading-8">
+          {description}
+        </p>
+      )}
+
+    </motion.div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\StarRating.tsx =====
+"use client";
+
+import { Star } from "lucide-react";
+
+interface Props {
+  value: number;
+  onChange?: (v: number) => void;
+  size?: number;
+  readOnly?: boolean;
+}
+
+export default function StarRating({ value, onChange, size = 22, readOnly = false }: Props) {
+  const stars = [1, 2, 3, 4, 5];
+
+  if (readOnly) {
+    return (
+      <div className="flex items-center gap-1">
+        {stars.map((s) => {
+          const filled = s <= Math.round(value);
+          return (
+            <span key={s} aria-hidden="true">
+              <Star
+                size={size}
+                strokeWidth={1.5}
+                className={filled ? "fill-[#8A6E4A] text-[#8A6E4A]" : "fill-transparent text-[#8A6E4A]/40"}
+              />
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {stars.map((s) => {
+        const filled = s <= Math.round(value);
+        return (
+          <button
+            key={s}
+            type="button"
+            onClick={() => onChange?.(s)}
+            className="cursor-pointer transition hover:scale-110"
+            aria-label={`Beri rating ${s} bintang`}
+          >
+            <Star
+              size={size}
+              strokeWidth={1.5}
+              className={filled ? "fill-[#8A6E4A] text-[#8A6E4A]" : "fill-transparent text-[#8A6E4A]/40"}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\components\ui\StatCard.tsx =====
+interface Props {
+  number: string;
+  title: string;
+}
+
+export default function StatCard({
+  number,
+  title,
+}: Props) {
+  return (
+    <div className="rounded-3xl border bg-white p-10 text-center">
+
+      <h3 className="font-heading text-5xl text-[#8A6E4A]">
+        {number}
+      </h3>
+
+      <p className="mt-3 text-neutral-600">
+        {title}
+      </p>
+
+    </div>
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\(portal)\layout.tsx =====
+import type { ReactNode } from "react";
+
+export default function PortalLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <main className="min-h-screen bg-neutral-100">
+      {children}
+    </main>
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\globals.css =====
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  /* Fonts */
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
+  --font-mono: monospace;
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * .6);
+  --radius-md: calc(var(--radius) * .8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root{
+
+  /* ===========================
+      Villa Van Resink Theme
+     =========================== */
+
+  --background:#F8F5EF;
+
+  --foreground:#2B2B2B;
+
+  --primary:#23412D;
+
+  --primary-foreground:#FFFFFF;
+
+  --secondary:#DCC79A;
+
+  --secondary-foreground:#2B2B2B;
+
+  --card:#FFFFFF;
+
+  --card-foreground:#2B2B2B;
+
+  --muted:#EFE8DD;
+
+  --muted-foreground:#6B6B6B;
+
+  --accent:#E5D4A7;
+
+  --accent-foreground:#23412D;
+
+  --border:#E6DED2;
+
+  --ring:#23412D;
+
+  --radius:1rem;
+
+}
+
+/* =======================
+      Base
+======================= */
+
+@layer base{
+
+*{
+box-sizing:border-box;
+}
+
+html{
+
+scroll-behavior:smooth;
+
+}
+
+body{
+
+background:var(--background);
+
+color:var(--foreground);
+
+font-family:var(--font-body);
+
+overflow-x:hidden;
+
+text-rendering:optimizeLegibility;
+
+-webkit-font-smoothing:antialiased;
+
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+
+font-family:var(--font-heading);
+
+font-weight:600;
+
+line-height:1.1;
+
+color:var(--foreground);
+
+}
+
+p{
+
+line-height:1.8;
+
+color:#555;
+
+}
+
+a{
+
+transition:.3s;
+
+text-decoration:none;
+
+}
+
+img{
+
+display:block;
+
+max-width:100%;
+
+height:auto;
+
+}
+
+button{
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+}
+
+/* =======================
+      Utilities
+======================= */
+
+@layer utilities{
+
+.container{
+
+max-width:1280px;
+
+margin-inline:auto;
+
+padding-inline:24px;
+
+}
+
+.section{
+
+padding-block:100px;
+
+}
+
+.section-sm{
+
+padding-block:72px;
+
+}
+
+.section-lg{
+
+padding-block:140px;
+
+}
+
+.text-balance{
+
+text-wrap:balance;
+
+}
+
+}
+
+/* =======================
+      Scrollbar
+======================= */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#F1ECE4;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#23412D;
+
+border-radius:100px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#173020;
+
+}
+
+/* =======================
+      Selection
+======================= */
+
+::selection{
+
+background:#23412D;
+
+color:white;
+
+}
+
+/* =======================
+      Animations
+======================= */
+
+.fade-up{
+
+opacity:0;
+
+transform:translateY(40px);
+
+transition:.8s ease;
+
+}
+
+.fade-up.show{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+.hover-lift{
+
+transition:.35s;
+
+}
+
+.hover-lift:hover{
+
+transform:translateY(-6px);
+
+}
+
+/* =======================
+      Shadows
+======================= */
+
+.shadow-soft{
+
+box-shadow:
+
+0 10px 30px rgba(0,0,0,.05);
+
+}
+
+.shadow-medium{
+
+box-shadow:
+
+0 18px 45px rgba(0,0,0,.08);
+
+}
+
+.shadow-large{
+
+box-shadow:
+
+0 30px 60px rgba(0,0,0,.12);
+
+}

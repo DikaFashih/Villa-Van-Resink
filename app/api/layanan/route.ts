@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
+import { ResultSetHeader } from "mysql2";
 
 export async function GET() {
   try {
@@ -22,5 +23,35 @@ export async function GET() {
 
     return NextResponse.json([], { status: 500 });
 
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { nama, slug, kategori, harga, deskripsi } = body;
+
+    if (!nama || !slug || !kategori || harga === undefined) {
+      return NextResponse.json(
+        { error: "Data tidak lengkap" },
+        { status: 400 }
+      );
+    }
+
+    const [result] = await pool.query<ResultSetHeader>(
+      `
+      INSERT INTO layanan_villa (nama, slug, kategori, harga, deskripsi, aktif)
+      VALUES (?, ?, ?, ?, ?, 1)
+      `,
+      [nama, slug, kategori, harga, deskripsi ?? ""]
+    );
+
+    return NextResponse.json({ success: true, id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menambah paket" },
+      { status: 500 }
+    );
   }
 }

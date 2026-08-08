@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+﻿import { cookies } from "next/headers";
 import { pool } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 
@@ -18,13 +18,7 @@ export async function createSession(userId: number) {
 
 export async function destroySession() {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    path: "/",
-    expires: new Date(0),
-  });
+  cookieStore.delete(COOKIE_NAME);
 }
 
 export async function getSessionUserId() {
@@ -64,4 +58,3 @@ export async function getSessionUser() {
 
   return rows.length ? rows[0] : null;
 }
-

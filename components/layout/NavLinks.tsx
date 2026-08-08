@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { navigation } from "@/lib/navigation";
-import {
-  getCurrentUser,
-  subscribeToAuth,
-  type AuthUser,
-} from "@/lib/auth";
 
 interface Props {
   dark?: boolean;
@@ -20,34 +14,6 @@ export default function NavLinks({
   onClick,
 }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  useEffect(() => {
-    async function loadUser() {
-      setUser(await getCurrentUser());
-    }
-
-    loadUser();
-
-    return subscribeToAuth(loadUser);
-  }, []);
-
-  const handleBookingClick = () => {
-    onClick?.();
-
-    if (!user) {
-      router.push("/login?redirect=/booking");
-      return;
-    }
-
-    if (user.role === "user") {
-      router.push("/dashboard");
-    } else {
-      router.push("/admin");
-    }
-  };
 
   return (
     <>
@@ -55,19 +21,6 @@ export default function NavLinks({
         const isActive = pathname === item.href;
 
         if (item.isButton) {
-          if (item.href === "/booking") {
-            return (
-              <button
-                key={item.href}
-                type="button"
-                onClick={handleBookingClick}
-                className="rounded-full bg-[#23412D] px-6 py-2.5 text-xs text-white transition hover:bg-[#1a3022]"
-              >
-                {item.title}
-              </button>
-            );
-          }
-
           return (
             <Link
               key={item.href}
@@ -85,8 +38,7 @@ export default function NavLinks({
             key={item.href}
             href={item.href}
             onClick={onClick}
-            className={`relative pb-1.5 text-sm uppercase tracking-[0.2em] transition
-            ${
+            className={`relative pb-1.5 text-sm uppercase tracking-[0.2em] transition ${
               isActive
                 ? "text-[#8A6E4A]"
                 : dark
@@ -97,8 +49,9 @@ export default function NavLinks({
             {item.title}
 
             <span
-              className={`absolute bottom-0 left-0 h-px bg-current transition
-              ${isActive ? "w-full" : "w-0"}`}
+              className={`absolute bottom-0 left-0 h-px bg-current transition ${
+                isActive ? "w-full" : "w-0"
+              }`}
             />
           </Link>
         );

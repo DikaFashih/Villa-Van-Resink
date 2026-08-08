@@ -1,31 +1,34 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { login } from "@/lib/auth";
+import { register } from "@/lib/auth";
 
-export default function LoginForm() {
+export default function RegisterForm() {
 
   const router = useRouter();
   const params = useSearchParams();
 
   const redirect = params.get("redirect") || "/";
 
+  const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
 
     e.preventDefault();
 
-    const result = await login(
+    const result = await register(
+      nama,
       email,
       password
     );
 
     if (!result.ok) {
-      setError(result.error ?? "Login gagal");
+      setError(result.error ?? "Registrasi gagal");
       return;
     }
 
@@ -44,15 +47,23 @@ export default function LoginForm() {
       >
 
         <h1 className="mb-8 text-center text-3xl font-bold">
-          Login
+          Register
         </h1>
+
+        <input
+          className="mb-4 w-full rounded-lg border p-3"
+          placeholder="Nama"
+          value={nama}
+          onChange={(e) => setNama(e.target.value)}
+          required
+        />
 
         <input
           className="mb-4 w-full rounded-lg border p-3"
           placeholder="Email"
           type="email"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 
@@ -61,7 +72,7 @@ export default function LoginForm() {
           placeholder="Password"
           type="password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
 
@@ -75,15 +86,15 @@ export default function LoginForm() {
           type="submit"
           className="w-full rounded-lg bg-green-700 py-3 text-white"
         >
-          Login
+          Daftar
         </button>
 
         <button
           type="button"
-          onClick={() => router.push(`/register?redirect=${encodeURIComponent(redirect)}`)}
+          onClick={() => router.push(`/login?redirect=${encodeURIComponent(redirect)}`)}
           className="mt-3 w-full rounded-lg border py-3"
         >
-          Buat Akun
+          Sudah punya akun
         </button>
 
       </form>
@@ -91,5 +102,4 @@ export default function LoginForm() {
     </div>
 
   );
-
 }

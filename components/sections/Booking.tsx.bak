@@ -50,12 +50,12 @@ useEffect(() => {
 
   const handleBookingClick = () => {
     if (!user) {
-      router.push("/login?redirect=/dashboard?tab=booking");
+      router.push("/login?redirect=/booking");
       return;
     }
 
     if (user.role === "user") {
-      router.push("/dashboard?tab=booking");
+      router.push("/dashboard");
     } else {
       router.push("/admin");
     }

@@ -1,0 +1,2079 @@
+﻿
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\admin\users\[id]\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/session";
+import { updateUser, deleteUser } from "@/lib/user";
+
+interface Context {
+  params: Promise<{ id: string }>;
+}
+
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const user = await getSessionUser();
+
+  if (!user || user.role !== "superadmin") {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  const { id } = await params;
+  const body = await req.json();
+
+  await updateUser(Number(id), body);
+
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(req: NextRequest, { params }: Context) {
+  const user = await getSessionUser();
+
+  if (!user || user.role !== "superadmin") {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  const { id } = await params;
+
+  if (Number(id) === user.id) {
+    return NextResponse.json(
+      { error: "Tidak bisa menghapus akun sendiri" },
+      { status: 400 }
+    );
+  }
+
+  await deleteUser(Number(id));
+
+  return NextResponse.json({ success: true });
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\admin\users\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import { getSessionUser } from "@/lib/session";
+import { getAllAdmins, createAdmin, findUserByEmail } from "@/lib/user";
+
+export async function GET() {
+  const user = await getSessionUser();
+
+  if (!user || user.role !== "superadmin") {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  const admins = await getAllAdmins();
+  return NextResponse.json(admins);
+}
+
+export async function POST(req: NextRequest) {
+  const user = await getSessionUser();
+
+  if (!user || user.role !== "superadmin") {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { nama, email, password } = await req.json();
+
+    if (!nama || !email || !password) {
+      return NextResponse.json(
+        { error: "Semua field wajib diisi." },
+        { status: 400 }
+      );
+    }
+
+    const exists = await findUserByEmail(email);
+    if (exists) {
+      return NextResponse.json(
+        { error: "Email sudah digunakan." },
+        { status: 409 }
+      );
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+    await createAdmin(nama, email, hash);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menambah admin" },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\auth\login\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import { findUserByEmail } from "@/lib/user";
+import { createSession } from "@/lib/session";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { email, password } = await req.json();
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { ok: false, error: "Email dan password wajib diisi." },
+        { status: 400 }
+      );
+    }
+
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, error: "Email atau password salah." },
+        { status: 401 }
+      );
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) {
+      return NextResponse.json(
+        { ok: false, error: "Email atau password salah." },
+        { status: 401 }
+      );
+    }
+    await createSession(user.id);
+    
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { ok: false, error: "Terjadi kesalahan pada server." },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\auth\logout\route.ts =====
+import { NextResponse } from "next/server";
+import { destroySession } from "@/lib/session";
+
+export async function POST() {
+  await destroySession();
+
+  const response = NextResponse.json({
+    ok: true,
+  });
+
+  response.cookies.set("vvr_session", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+    path: "/",
+    maxAge: 0,
+  });
+
+  return response;
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\auth\register\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import { findUserByEmail, createUser } from "@/lib/user";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { nama, email, password } = await req.json();
+
+    if (!nama || !email || !password) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Semua field wajib diisi."
+        },
+        { status: 400 }
+      );
+    }
+
+    const exists = await findUserByEmail(email);
+
+    if (exists) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Email sudah digunakan."
+        },
+        { status: 409 }
+      );
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+
+    await createUser(
+      nama,
+      email,
+      hash
+    );
+
+    const user = await findUserByEmail(email);
+
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: user!.id,
+        nama: user!.nama,
+        email: user!.email,
+        role: user!.role,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Server error."
+      },
+      {
+        status: 500
+      }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\auth\session\route.ts =====
+import { NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { getSessionUserId } from "@/lib/session";
+import { RowDataPacket } from "mysql2";
+
+export async function GET() {
+
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    return NextResponse.json({
+      authenticated:false
+    });
+  }
+
+  const [rows] = await pool.query<RowDataPacket[]>(
+    "SELECT id,nama,email,role FROM users WHERE id=?",
+    [userId]
+  );
+
+  if (!rows.length) {
+    return NextResponse.json({
+      authenticated:false
+    });
+  }
+
+  return NextResponse.json({
+    authenticated:true,
+    user:rows[0]
+  });
+
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\booking\[id]\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+
+import {
+  updateBookingStatus,
+  deleteBooking,
+} from "@/lib/booking";
+
+import { getSessionUser } from "@/lib/session";
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getSessionUser();
+
+    if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+
+    await updateBookingStatus(Number(id), body.status);
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getSessionUser();
+
+    if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+
+    await deleteBooking(Number(id));
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\booking\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+
+import {
+  createBooking,
+  getAllBookings,
+  getBookingsByUser,
+} from "@/lib/booking";
+
+import { getSessionUser } from "@/lib/session";
+
+export async function GET() {
+  try {
+
+    const user = await getSessionUser();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (
+      user.role === "admin" ||
+      user.role === "superadmin"
+    ) {
+
+      const bookings = await getAllBookings();
+
+      return NextResponse.json({
+        ok: true,
+        bookings,
+      });
+
+    }
+
+    const bookings = await getBookingsByUser(user.id);
+
+    return NextResponse.json({
+      ok: true,
+      bookings,
+    });
+
+  } catch {
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Server Error",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+}
+
+export async function POST(
+  request: NextRequest
+) {
+
+  try {
+
+    const user = await getSessionUser();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const body = await request.json();
+
+    const bookingId = await createBooking(
+
+      user.id,
+
+      body.layanan_id,
+
+      body.check_in,
+
+      body.check_out,
+
+      body.jumlah_orang
+
+    );
+
+    return NextResponse.json({
+
+      ok: true,
+
+      bookingId,
+
+    });
+
+  } catch {
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Server Error",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\health\route.ts =====
+import { NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+
+export async function GET() {
+  try {
+    await pool.query("SELECT 1");
+
+    return NextResponse.json({
+      ok: true,
+      database: "connected",
+    });
+
+  } catch (e) {
+    console.error(e);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        database: "disconnected",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\layanan\[id]\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { ResultSetHeader } from "mysql2";
+
+interface Context {
+  params: Promise<{ id: string }>;
+}
+
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const { id } = await params;
+  const body = await req.json();
+
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  if (body.nama !== undefined) { fields.push("nama=?"); values.push(body.nama); }
+  if (body.slug !== undefined) { fields.push("slug=?"); values.push(body.slug); }
+  if (body.kategori !== undefined) { fields.push("kategori=?"); values.push(body.kategori); }
+  if (body.harga !== undefined) { fields.push("harga=?"); values.push(body.harga); }
+  if (body.deskripsi !== undefined) { fields.push("deskripsi=?"); values.push(body.deskripsi); }
+  if (body.aktif !== undefined) { fields.push("aktif=?"); values.push(body.aktif ? 1 : 0); }
+
+  if (fields.length === 0) {
+    return NextResponse.json({ success: true });
+  }
+
+  values.push(id);
+
+  await pool.query<ResultSetHeader>(
+    `UPDATE layanan_villa SET ${fields.join(",")} WHERE id=?`,
+    values
+  );
+
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(req: NextRequest, { params }: Context) {
+  const { id } = await params;
+
+  await pool.query<ResultSetHeader>(
+    `UPDATE layanan_villa SET aktif=0 WHERE id=?`,
+    [id]
+  );
+
+  return NextResponse.json({ success: true });
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\layanan\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { ResultSetHeader } from "mysql2";
+
+export async function GET() {
+  try {
+    const [rows]: any = await pool.query(`
+      SELECT
+        id,
+        nama,
+        slug,
+        kategori,
+        harga,
+        deskripsi
+      FROM layanan_villa
+      WHERE aktif=1
+      ORDER BY kategori,nama
+    `);
+
+    return NextResponse.json(rows);
+
+  } catch {
+
+    return NextResponse.json([], { status: 500 });
+
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { nama, slug, kategori, harga, deskripsi } = body;
+
+    if (!nama || !slug || !kategori || harga === undefined) {
+      return NextResponse.json(
+        { error: "Data tidak lengkap" },
+        { status: 400 }
+      );
+    }
+
+    const [result] = await pool.query<ResultSetHeader>(
+      `
+      INSERT INTO layanan_villa (nama, slug, kategori, harga, deskripsi, aktif)
+      VALUES (?, ?, ?, ?, ?, 1)
+      `,
+      [nama, slug, kategori, harga, deskripsi ?? ""]
+    );
+
+    return NextResponse.json({ success: true, id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menambah paket" },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\promo\active\route.ts =====
+import { pool } from "@/lib/db";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const [rows]: any = await pool.query(`
+      SELECT
+        p.id,
+        p.judul,
+        p.deskripsi,
+        p.diskon_persen AS diskon,
+        p.tanggal_selesai AS tanggalSelesai,
+        l.slug AS paketSlug
+      FROM promo p
+      JOIN layanan_villa l
+        ON l.id = p.layanan_id
+      WHERE
+        p.aktif = 1
+        AND CURDATE() >= p.tanggal_mulai
+        AND CURDATE() <= p.tanggal_selesai
+      ORDER BY p.diskon_persen DESC
+      LIMIT 1
+    `);
+
+    if (rows.length === 0) {
+      return NextResponse.json(null);
+    }
+
+    return NextResponse.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(null);
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\promo\[id]\route.ts =====
+import { pool } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+
+interface Context {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: Context
+) {
+  const { id } = await params;
+  const body = await req.json();
+
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  if (body.judul !== undefined) {
+    fields.push("judul=?");
+    values.push(body.judul);
+  }
+
+  if (body.deskripsi !== undefined) {
+    fields.push("deskripsi=?");
+    values.push(body.deskripsi);
+  }
+
+  if (body.diskonPersen !== undefined) {
+    fields.push("diskon_persen=?");
+    values.push(body.diskonPersen);
+  }
+
+  if (body.aktif !== undefined) {
+    fields.push("aktif=?");
+    values.push(body.aktif ? 1 : 0);
+  }
+
+  if (body.tanggalMulai !== undefined) {
+    fields.push("tanggal_mulai=?");
+    values.push(body.tanggalMulai);
+  }
+
+  if (body.tanggalSelesai !== undefined) {
+    fields.push("tanggal_selesai=?");
+    values.push(body.tanggalSelesai);
+  }
+
+  if (body.paketSlug !== undefined) {
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT id FROM layanan_villa WHERE slug=?",
+      [body.paketSlug]
+    );
+
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { error: "Paket tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    fields.push("layanan_id=?");
+    values.push(rows[0].id);
+
+  }
+
+  if (fields.length === 0) {
+    return NextResponse.json({ success: true });
+  }
+
+  values.push(id);
+
+  await pool.query<ResultSetHeader>(
+    `UPDATE promo
+     SET ${fields.join(",")}
+     WHERE id=?`,
+    values
+  );
+
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: Context
+) {
+  const { id } = await params;
+
+  await pool.query<ResultSetHeader>(
+    "DELETE FROM promo WHERE id=?",
+    [id]
+  );
+
+  return NextResponse.json({
+    success: true
+  });
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\promo\route.ts =====
+import { pool } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
+
+// Ambil semua promo
+export async function GET() {
+  const [rows] = await pool.query(
+    `SELECT p.id, l.slug AS paketSlug, p.judul, p.deskripsi,
+            p.diskon_persen AS diskonPersen, p.aktif,
+            p.tanggal_mulai AS tanggalMulai, p.tanggal_selesai AS tanggalSelesai
+     FROM promo p
+     JOIN layanan_villa l ON p.layanan_id = l.id
+     ORDER BY p.id DESC`,
+  );
+  return NextResponse.json(rows);
+}
+
+// Tambah promo baru
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const {
+    paketSlug,
+    judul,
+    deskripsi,
+    diskonPersen,
+    aktif,
+    tanggalMulai,
+    tanggalSelesai,
+  } = body;
+
+  const [paketRows] = await pool.query<RowDataPacket[]>(
+    "SELECT id FROM layanan_villa WHERE slug = ?",
+    [paketSlug],
+  );
+
+  if (paketRows.length === 0) {
+    return NextResponse.json(
+      { error: "Paket tidak ditemukan" },
+      { status: 400 },
+    );
+  }
+
+  const layananId = paketRows[0].id;
+
+  const [result] = await pool.query<ResultSetHeader>(
+    `INSERT INTO promo (layanan_id, judul, deskripsi, diskon_persen, aktif, tanggal_mulai, tanggal_selesai)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      layananId,
+      judul,
+      deskripsi,
+      diskonPersen,
+      aktif ? 1 : 0,
+      tanggalMulai,
+      tanggalSelesai,
+    ],
+  );
+
+  return NextResponse.json({
+    id: result.insertId,
+    paketSlug,
+    judul,
+    deskripsi,
+    diskonPersen,
+    aktif,
+    tanggalMulai,
+    tanggalSelesai,
+  });
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\question\[id]\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { ResultSetHeader } from "mysql2";
+
+interface Context {
+  params: Promise<{ id: string }>;
+}
+
+export async function PATCH(req: NextRequest, { params }: Context) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+
+    await pool.query<ResultSetHeader>(
+      `UPDATE questions SET jawaban=?, status='dijawab' WHERE id=?`,
+      [body.jawaban, id]
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menjawab pertanyaan" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest, { params }: Context) {
+  try {
+    const { id } = await params;
+
+    await pool.query<ResultSetHeader>(
+      `DELETE FROM questions WHERE id=?`,
+      [id]
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menghapus pertanyaan" },
+      { status: 500 }
+    );
+  }
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\question\route.ts =====
+import { pool } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { ResultSetHeader } from "mysql2";
+
+export async function GET() {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        q.id,
+        q.user_id AS userId,
+        u.nama AS userNama,
+        q.pertanyaan,
+        q.jawaban,
+        q.status,
+        q.created_at AS createdAt
+      FROM questions q
+      JOIN users u
+        ON u.id = q.user_id
+      ORDER BY q.created_at DESC
+    `);
+
+    return NextResponse.json(rows);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal mengambil pertanyaan" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+
+    const [result] = await pool.query<ResultSetHeader>(
+      `
+      INSERT INTO questions
+      (
+        user_id,
+        pertanyaan,
+        status
+      )
+      VALUES
+      (?, ?, 'pending')
+      `,
+      [
+        body.userId,
+        body.pertanyaan,
+      ]
+    );
+
+    return NextResponse.json({
+      id: result.insertId,
+      success: true,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: "Gagal menambah pertanyaan" },
+      { status: 500 }
+    );
+  }
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\reviews\[id]\route.ts =====
+import { pool } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { ResultSetHeader } from "mysql2";
+
+interface Context {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: Context
+) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+
+    await pool.query<ResultSetHeader>(
+      `
+      UPDATE reviews
+      SET status = ?
+      WHERE id = ?
+      `,
+      [
+        body.status,
+        id,
+      ]
+    );
+
+    return NextResponse.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        error: "Gagal mengubah review",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: Context
+) {
+  try {
+
+    const { id } = await params;
+
+    await pool.query<ResultSetHeader>(
+      `
+      DELETE FROM reviews
+      WHERE id = ?
+      `,
+      [
+        id,
+      ]
+    );
+
+    return NextResponse.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        error: "Gagal menghapus review",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\app\api\reviews\route.ts =====
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { getSessionUser } from "@/lib/session";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+
+export async function GET() {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `
+      SELECT
+        r.id,
+        r.booking_id   AS bookingId,
+        r.user_id      AS userId,
+        u.nama         AS nama,
+        r.layanan_id   AS layananId,
+        l.nama         AS layananNama,
+        l.slug         AS layananSlug,
+        r.rating,
+        r.komentar,
+        r.status,
+        r.created_at   AS createdAt
+      FROM reviews r
+      LEFT JOIN users u ON u.id = r.user_id
+      LEFT JOIN layanan_villa l ON l.id = r.layanan_id
+      ORDER BY r.created_at DESC
+      `
+    );
+
+    return NextResponse.json(rows);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json([], { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getSessionUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+
+    const [result] = await pool.query<ResultSetHeader>(
+      `
+      INSERT INTO reviews (booking_id, user_id, layanan_id, rating, komentar, status)
+      VALUES (?, ?, ?, ?, ?, 'pending')
+      `,
+      [
+        body.bookingId,
+        user.id,
+        body.layananId,
+        body.rating,
+        body.komentar,
+      ]
+    );
+
+    return NextResponse.json({ success: true, id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Gagal menambah ulasan" },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\auth.ts =====
+export type Role = "user" | "admin" | "superadmin";
+
+export interface AuthUser {
+  id: number;
+  nama: string;
+  email: string;
+  role: Role;
+}
+
+const EVENT_NAME = "vvr-auth-updated";
+
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch("/api/auth/session", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!data.authenticated) return null;
+
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+export async function login(email: string, password: string) {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    notifyAuthChanged();
+  }
+
+  return data;
+}
+
+export async function register(
+  nama: string,
+  email: string,
+  password: string
+) {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      nama,
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    notifyAuthChanged();
+  }
+
+  return data;
+}
+
+export async function logout() {
+  await fetch("/api/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  notifyAuthChanged();
+
+  window.location.href = "/";
+}
+
+export function subscribeToAuth(callback: () => void) {
+  window.addEventListener(EVENT_NAME, callback);
+
+  return () =>
+    window.removeEventListener(EVENT_NAME, callback);
+}
+
+export function notifyAuthChanged() {
+  window.dispatchEvent(new Event(EVENT_NAME));
+}
+
+export async function getAllUsers() {
+  const res = await fetch("/api/admin/users", {
+    credentials: "include",
+  });
+
+  return await res.json();
+}
+
+export async function createAdmin(
+  nama: string,
+  email: string,
+  password: string
+) {
+  const res = await fetch("/api/admin/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      nama,
+      email,
+      password,
+      role: "admin",
+    }),
+  });
+
+  return await res.json();
+}
+
+export async function removeUser(id: number) {
+  const res = await fetch(`/api/admin/users/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  return await res.json();
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\booking.ts =====
+import { pool } from "@/lib/db";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
+
+export interface Booking extends RowDataPacket {
+  id: number;
+  user_id: number;
+  layanan_id: number;
+  check_in: string;
+  check_out: string;
+  jumlah_orang: number;
+  status:
+    | "pending"
+    | "diproses"
+    | "diterima"
+    | "ditolak"
+    | "selesai"
+    | "dibatalkan";
+  created_at: string;
+
+  nama_layanan?: string;
+  nama_user?: string;
+}
+
+export async function createBooking(
+  userId: number,
+  layananId: number,
+  checkIn: string,
+  checkOut: string,
+  jumlahOrang: number
+) {
+  const [result] = await pool.query<ResultSetHeader>(
+    `
+    INSERT INTO booking
+    (
+      user_id,
+      layanan_id,
+      check_in,
+      check_out,
+      jumlah_orang,
+      status
+    )
+    VALUES (?,?,?,?,?,'pending')
+    `,
+    [
+      userId,
+      layananId,
+      checkIn,
+      checkOut,
+      jumlahOrang,
+    ]
+  );
+
+  return result.insertId;
+}
+
+export async function getBookingsByUser(userId: number) {
+  const [rows] = await pool.query<Booking[]>(
+    `
+    SELECT
+      b.*,
+      l.nama AS nama_layanan
+    FROM booking b
+    JOIN layanan_villa l
+      ON l.id = b.layanan_id
+    WHERE b.user_id=?
+    ORDER BY b.created_at DESC
+    `,
+    [userId]
+  );
+
+  return rows;
+}
+
+export async function getAllBookings() {
+  const [rows] = await pool.query<Booking[]>(
+    `
+    SELECT
+      b.*,
+      u.nama AS nama_user,
+      l.nama AS nama_layanan
+    FROM booking b
+    JOIN users u
+      ON u.id=b.user_id
+    JOIN layanan_villa l
+      ON l.id=b.layanan_id
+    ORDER BY b.created_at DESC
+    `
+  );
+
+  return rows;
+}
+
+export async function updateBookingStatus(
+  id: number,
+  status: Booking["status"]
+) {
+  await pool.query(
+    `
+    UPDATE booking
+    SET status=?
+    WHERE id=?
+    `,
+    [status, id]
+  );
+}
+
+export async function deleteBooking(
+  id: number
+) {
+  await pool.query(
+    `
+    DELETE FROM booking
+    WHERE id=?
+    `,
+    [id]
+  );
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\cn.ts =====
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\db.ts =====
+import mysql from "mysql2/promise";
+
+export const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\layanan.ts =====
+export interface Layanan {
+  id: number;
+  nama: string;
+  slug: string;
+  kategori: "paket" | "wahana" | "edukasi";
+  harga: number;
+  deskripsi: string;
+}
+
+export async function getAllLayanan() {
+  const res = await fetch("/api/layanan");
+  return (await res.json()) as Layanan[];
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\navigation.ts =====
+export const navigation = [
+  { title: "Aktivitas", href: "/aktivitas" },
+  { title: "Paket", href: "/paket" },
+  { title: "Fasilitas", href: "/fasilitas" },
+  { title: "Gallery", href: "/gallery" },
+  { title: "FAQ", href: "/faq" },
+  { title: "Booking", href: "/booking", isButton: true },
+];
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\paket.ts =====
+import { pool } from "@/lib/db";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
+
+export interface Paket extends RowDataPacket {
+  id: number;
+  nama: string;
+  slug: string;
+  kategori: string;
+  harga: number;
+  deskripsi: string;
+  aktif: boolean;
+}
+
+export async function getAllPaket() {
+  const [rows] = await pool.query<Paket[]>(
+    `
+    SELECT *
+    FROM layanan_villa
+    WHERE aktif = 1
+    ORDER BY nama ASC
+    `
+  );
+
+  return rows;
+}
+
+export async function getPaketById(id: number) {
+  const [rows] = await pool.query<Paket[]>(
+    `
+    SELECT *
+    FROM layanan_villa
+    WHERE id = ?
+    LIMIT 1
+    `,
+    [id]
+  );
+
+  return rows.length ? rows[0] : null;
+}
+
+export async function getPaketBySlug(slug: string) {
+  const [rows] = await pool.query<Paket[]>(
+    `
+    SELECT *
+    FROM layanan_villa
+    WHERE slug = ?
+    LIMIT 1
+    `,
+    [slug]
+  );
+
+  return rows.length ? rows[0] : null;
+}
+
+export async function createPaket(
+  nama: string,
+  slug: string,
+  kategori: string,
+  harga: number,
+  deskripsi: string
+) {
+  const [result] = await pool.query<ResultSetHeader>(
+    `
+    INSERT INTO layanan_villa
+    (
+      nama,
+      slug,
+      kategori,
+      harga,
+      deskripsi,
+      aktif
+    )
+    VALUES
+    (?,?,?,?,?,1)
+    `,
+    [
+      nama,
+      slug,
+      kategori,
+      harga,
+      deskripsi,
+    ]
+  );
+
+  return result.insertId;
+}
+
+export async function updatePaket(
+  id: number,
+  nama: string,
+  slug: string,
+  kategori: string,
+  harga: number,
+  deskripsi: string,
+  aktif: boolean
+) {
+  await pool.query(
+    `
+    UPDATE layanan_villa
+    SET
+      nama=?,
+      slug=?,
+      kategori=?,
+      harga=?,
+      deskripsi=?,
+      aktif=?
+    WHERE id=?
+    `,
+    [
+      nama,
+      slug,
+      kategori,
+      harga,
+      deskripsi,
+      aktif,
+      id,
+    ]
+  );
+}
+
+export async function deletePaket(id: number) {
+  await pool.query(
+    `
+    DELETE FROM layanan_villa
+    WHERE id=?
+    `,
+    [id]
+  );
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\promo.ts =====
+export interface Promo {
+  id: string;
+  paketSlug: string;
+  judul: string;
+  deskripsi: string;
+  diskonPersen: number;
+  aktif: boolean;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+}
+
+const EVENT_NAME = "vvr-promo-updated";
+
+export function subscribeToPromo(callback: () => void) {
+  window.addEventListener(EVENT_NAME, callback);
+  return () => window.removeEventListener(EVENT_NAME, callback);
+}
+
+function notify() {
+  window.dispatchEvent(new Event(EVENT_NAME));
+}
+
+interface PromoRow {
+  id: string;
+  paketSlug: string;
+  judul: string;
+  deskripsi: string;
+  diskonPersen: number | string;
+  aktif: number | boolean;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+}
+
+export async function getAllPromo(): Promise<Promo[]> {
+  const res = await fetch("/api/promo");
+  const data: PromoRow[] = await res.json();
+  return data.map((p) => ({
+    ...p,
+    aktif: !!p.aktif,
+    diskonPersen: Number(p.diskonPersen),
+  }));
+}
+
+export async function getActivePromoForPaket(
+  paketSlug: string,
+): Promise<Promo | undefined> {
+  const all = await getAllPromo();
+  const today = new Date().toISOString().slice(0, 10);
+  return all.find(
+    (p) =>
+      p.paketSlug === paketSlug &&
+      p.aktif &&
+      p.tanggalMulai <= today &&
+      today <= p.tanggalSelesai,
+  );
+}
+
+export async function addPromo(data: Omit<Promo, "id">): Promise<Promo> {
+  const res = await fetch("/api/promo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const newPromo = await res.json();
+  notify();
+  return newPromo;
+}
+
+export async function updatePromo(
+  id: string,
+  data: Partial<Omit<Promo, "id">>,
+): Promise<void> {
+  await fetch(`/api/promo/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  notify();
+}
+
+export async function removePromo(id: string): Promise<void> {
+  await fetch(`/api/promo/${id}`, { method: "DELETE" });
+  notify();
+}
+
+export interface ActivePromo {
+  id: string;
+  judul: string;
+  deskripsi: string;
+  diskon: number;
+  tanggalSelesai: string;
+  paketSlug: string;
+}
+
+export async function getActivePromo() {
+  try {
+    const res = await fetch("/api/promo/active");
+
+    if (!res.ok) return null;
+
+    const text = await res.text();
+
+    if (!text) return null;
+
+    return JSON.parse(text) as ActivePromo | null;
+  } catch {
+    return null;
+  }
+}
+
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\question.ts =====
+export interface Question {
+  id: string;
+  userId: string;
+  userNama: string;
+  pertanyaan: string;
+  jawaban: string | null;
+  status: "pending" | "dijawab";
+  createdAt: string;
+}
+
+export async function getAllQuestions(): Promise<Question[]> {
+  const res = await fetch("/api/question");
+
+  if (!res.ok) return [];
+
+  return res.json();
+}
+
+export async function getQuestionsForUser(
+  userId: string
+): Promise<Question[]> {
+
+  const all = await getAllQuestions();
+
+  return all.filter(
+    (q) => String(q.userId) === String(userId)
+  );
+
+}
+
+export async function askQuestion(
+  userId: string,
+  userNama: string,
+  pertanyaan: string
+) {
+
+  await fetch("/api/question", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: Number(userId),
+      userNama,
+      pertanyaan,
+    }),
+  });
+
+}
+
+export async function answerQuestion(
+  id: string,
+  jawaban: string
+) {
+
+  await fetch(`/api/question/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jawaban,
+    }),
+  });
+
+}
+
+export async function removeQuestion(
+  id: string
+) {
+
+  await fetch(`/api/question/${id}`, {
+    method: "DELETE",
+  });
+
+}
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\reviews.ts =====
+export interface Review {
+  id: number;
+  bookingId: number;
+  userId: number;
+  nama: string;
+  layananId: number;
+  layananNama: string;
+  layananSlug: string;
+  rating: number;
+  komentar: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
+
+export async function getAllReviews(): Promise<Review[]> {
+
+  const res = await fetch("/api/reviews");
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return await res.json();
+
+}
+
+export async function getReviewsFor(
+  layananId: number
+): Promise<Review[]> {
+
+  const all = await getAllReviews();
+
+  return all.filter(
+    (r) =>
+      r.layananId === layananId &&
+      r.status === "approved"
+  );
+
+}
+
+export async function getAverageRating(
+  layananId: number
+): Promise<number> {
+
+  const reviews = await getReviewsFor(
+    layananId
+  );
+
+  if (reviews.length === 0) {
+    return 0;
+  }
+
+  return (
+    reviews.reduce(
+      (sum, r) => sum + r.rating,
+      0
+    ) / reviews.length
+  );
+
+}
+
+export async function addReview(data: {
+  bookingId: number;
+  userId: number;
+  layananId: number;
+  rating: number;
+  komentar: string;
+}) {
+
+  const res = await fetch(
+    "/api/reviews",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  return await res.json();
+
+}
+
+export async function updateReviewStatus(
+  id: number,
+  status: "pending" | "approved" | "rejected"
+) {
+
+  await fetch(`/api/reviews/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      status,
+    }),
+  });
+
+}
+
+export async function removeReview(
+  id: number
+) {
+
+  await fetch(`/api/reviews/${id}`, {
+    method: "DELETE",
+  });
+
+}
+
+export async function getAllRawReviews(): Promise<Review[]> {
+
+  return await getAllReviews();
+
+}
+
+export interface ReviewSummary {
+  layananId: number;
+  layananNama: string;
+  layananSlug: string;
+  averageRating: number;
+  count: number;
+}
+
+export async function getGroupedSummaries(): Promise<ReviewSummary[]> {
+
+  const reviews = await getAllReviews();
+
+  const approved = reviews.filter(
+    (r) => r.status === "approved"
+  );
+
+  const map = new Map<
+    number,
+    {
+      layananNama: string;
+      layananSlug: string;
+      total: number;
+      count: number;
+    }
+  >();
+
+  for (const review of approved) {
+
+    const current = map.get(review.layananId) ?? {
+      layananNama: review.layananNama,
+      layananSlug: review.layananSlug,
+      total: 0,
+      count: 0,
+    };
+
+    current.total += review.rating;
+    current.count++;
+
+    map.set(review.layananId, current);
+
+  }
+
+  return Array.from(map.entries()).map(
+    ([layananId, value]) => ({
+      layananId,
+      layananNama: value.layananNama,
+      layananSlug: value.layananSlug,
+      averageRating:
+        value.total / value.count,
+      count: value.count,
+    })
+  );
+
+}
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\session.ts =====
+import { cookies } from "next/headers";
+import { pool } from "@/lib/db";
+import { RowDataPacket } from "mysql2";
+
+const COOKIE_NAME = "vvr_session";
+
+export async function createSession(userId: number) {
+  const cookieStore = await cookies();
+
+  cookieStore.set(COOKIE_NAME, String(userId), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+}
+
+export async function destroySession() {
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+    path: "/",
+    expires: new Date(0),
+  });
+}
+
+export async function getSessionUserId() {
+  const cookieStore = await cookies();
+  const value = cookieStore.get(COOKIE_NAME);
+
+  if (!value) return null;
+
+  return Number(value.value);
+}
+
+interface SessionUser extends RowDataPacket {
+  id: number;
+  nama: string;
+  email: string;
+  role: "user" | "admin" | "superadmin";
+}
+
+export async function getSessionUser() {
+  const userId = await getSessionUserId();
+
+  if (!userId) return null;
+
+  const [rows] = await pool.query<SessionUser[]>(
+    `
+    SELECT
+      id,
+      nama,
+      email,
+      role
+    FROM users
+    WHERE id=?
+    LIMIT 1
+    `,
+    [userId]
+  );
+
+  return rows.length ? rows[0] : null;
+}
+
+
+
+===== FILE: D:\WEB\villa van resink\villa-van-resink\lib\user.ts =====
+import { pool } from "@/lib/db";
+import { RowDataPacket } from "mysql2";
+
+export interface User extends RowDataPacket {
+  id: number;
+  nama: string;
+  email: string;
+  password: string;
+  role: "user" | "admin" | "superadmin";
+}
+
+export async function findUserByEmail(email: string) {
+  const [rows] = await pool.query<User[]>(
+    "SELECT * FROM users WHERE email = ? LIMIT 1",
+    [email]
+  );
+  return rows.length ? rows[0] : null;
+}
+
+export async function createUser(
+  nama: string,
+  email: string,
+  password: string
+) {
+  await pool.query(
+    `INSERT INTO users (nama,email,password,role)
+     VALUES (?,?,?,'user')`,
+    [nama, email, password]
+  );
+}
+
+export async function getAllAdmins() {
+  const [rows] = await pool.query<User[]>(
+    `
+    SELECT id, nama, email, role, created_at
+    FROM users
+    WHERE role IN ('admin','superadmin')
+    ORDER BY role DESC, nama
+    `
+  );
+  return rows;
+}
+
+export async function createAdmin(
+  nama: string,
+  email: string,
+  hashedPassword: string
+) {
+  await pool.query(
+    `INSERT INTO users (nama,email,password,role)
+     VALUES (?,?,?,'admin')`,
+    [nama, email, hashedPassword]
+  );
+}
+
+export async function updateUser(
+  id: number,
+  data: { nama?: string; email?: string; role?: string }
+) {
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  if (data.nama !== undefined) {
+    fields.push("nama=?");
+    values.push(data.nama);
+  }
+  if (data.email !== undefined) {
+    fields.push("email=?");
+    values.push(data.email);
+  }
+  if (data.role !== undefined) {
+    fields.push("role=?");
+    values.push(data.role);
+  }
+
+  if (fields.length === 0) return;
+
+  values.push(id);
+
+  await pool.query(
+    `UPDATE users SET ${fields.join(",")} WHERE id=?`,
+    values
+  );
+}
+
+export async function deleteUser(id: number) {
+  await pool.query(`DELETE FROM users WHERE id=?`, [id]);
+}
+

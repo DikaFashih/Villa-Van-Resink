@@ -11,20 +11,16 @@ import {
 } from "@/lib/auth";
 
 export default function AuthNav() {
-
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-
     async function loadUser() {
-      const current = await getCurrentUser();
-      setUser(current);
+      setUser(await getCurrentUser());
     }
 
     loadUser();
 
     return subscribeToAuth(loadUser);
-
   }, []);
 
   async function handleLogout() {
@@ -35,7 +31,7 @@ export default function AuthNav() {
     return (
       <Link
         href="/login"
-        className="rounded-full border border-white/20 px-5 py-2 text-sm text-white transition hover:bg-white hover:text-[#23412D]"
+        className="rounded-full border border-white/20 px-5 py-2 text-sm text-white transition hover:bg-white/10"
       >
         Login
       </Link>
@@ -44,19 +40,17 @@ export default function AuthNav() {
 
   return (
     <div className="flex items-center gap-3">
-
       <span className="text-sm text-white">
         {user.nama}
       </span>
 
       <button
+        type="button"
         onClick={handleLogout}
-        className="rounded-full border border-white/20 px-5 py-2 text-sm text-white transition hover:bg-red-600 hover:border-red-600"
+        className="rounded-full border border-red-500 px-5 py-2 text-sm text-red-500 transition hover:bg-red-600 hover:text-white"
       >
         Logout
       </button>
-
     </div>
   );
-
 }
