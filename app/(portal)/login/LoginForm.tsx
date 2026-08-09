@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ export default function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const redirect = params.get("redirect") || "/";
+  const redirect = params.get("redirect") || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { getCurrentUser, type AuthUser } from "@/lib/auth";
 
 import UserBookingTab from "./UserBookingTab";
 import UserQuestionTab from "./UserQuestionTab";
 import UserReviewTab from "./UserReviewTab";
 
+const IDLE_LIMIT_MS = 10 * 60 * 1000; // 10 menit
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleLogout = () => {
-    // Hapus sesi atau token jika ada, lalu arahkan ke login
     router.push("/login");
   };
 
@@ -25,6 +27,26 @@ export default function DashboardPage() {
     }
 
     loadUser();
+  }, []);
+
+  useEffect(() => {
+    function resetIdleTimer() {
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+      idleTimer.current = setTimeout(() => {
+        handleLogout();
+      }, IDLE_LIMIT_MS);
+    }
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
+    resetIdleTimer();
+
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, resetIdleTimer),
+      );
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
   }, []);
 
   if (!user) {
@@ -38,15 +60,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#F8F6F1]">
       <div className="mx-auto max-w-7xl p-8">
-        <div className="mb-4 flex items-center justify-between">
-          <button
-            onClick={() => router.push("/booking")}
-            className="flex items-center gap-2 text-sm font-medium text-[#8A6E4A] hover:text-[#6f5638]"
-          >
-            <ArrowLeft size={16} />
-            Kembali ke Booking
-          </button>
-
+        <div className="mb-4 flex items-center justify-end">
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"

@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 villa_backup.sql
+# scratch / dump files
+*.txt
+*.md
+*.bak
+*.log
+hash-password.js

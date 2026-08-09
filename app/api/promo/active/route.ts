@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const [rows]: any = await pool.query(`
+    const { rows } = await pool.query(`
       SELECT
         p.id,
         p.judul,

@@ -67,7 +67,7 @@ export default function Edukasi() {
                     <div className="mt-4 h-px w-12 bg-[#8A6E4A]/50" />
                     <p className="mt-5 max-w-md leading-8 text-neutral-600">{item.desc}</p>
 
-                    <ReviewBox layananId={1} targetLabel={item.title} />
+                    <ReviewBox layananSlug={item.slug} targetLabel={item.title} />
 
                   </div>
 

@@ -1,7 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { CalendarDays, MessageCircle, Plus } from "lucide-react";
+import ChatPanel from "@/components/ui/ChatPanel";
+import DetailModal from "@/components/ui/DetailModal";
+import { getCurrentUser } from "@/lib/auth";
 
 interface Booking {
   id: number;
@@ -52,6 +55,10 @@ export default function UserBookingTab() {
   const [checkOut, setCheckOut] = useState("");
   const [jumlahOrang, setJumlahOrang] = useState(1);
 
+  const [activeChatBookingId, setActiveChatBookingId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [activeDetailBooking, setActiveDetailBooking] = useState<Booking | null>(null);
+
   async function loadBookings() {
     try {
       const res = await fetch("/api/booking");
@@ -83,6 +90,9 @@ export default function UserBookingTab() {
   useEffect(() => {
     loadBookings();
     loadPaket();
+    getCurrentUser().then((u) => {
+      if (u) setCurrentUserId(u.id);
+    });
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -276,10 +286,16 @@ export default function UserBookingTab() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button className="rounded-lg bg-[#23412D] px-5 py-2 text-white hover:bg-[#1b3323]">
+            <button
+              onClick={() => setActiveDetailBooking(booking)}
+              className="rounded-lg bg-[#23412D] px-5 py-2 text-white hover:bg-[#1b3323]"
+            >
               Detail
             </button>
-            <button className="flex items-center gap-2 rounded-lg border px-5 py-2 hover:bg-neutral-50">
+            <button
+              onClick={() => setActiveChatBookingId(booking.id)}
+              className="flex items-center gap-2 rounded-lg border px-5 py-2 hover:bg-neutral-50"
+            >
               <MessageCircle size={18} />
               Chat Admin
             </button>
