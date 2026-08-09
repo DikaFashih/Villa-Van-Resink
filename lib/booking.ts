@@ -1,7 +1,6 @@
 ﻿import { pool } from "@/lib/db";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
 
-export interface Booking extends RowDataPacket {
+export interface Booking {
   id: number;
   user_id: number;
   layanan_id: number;
@@ -29,7 +28,7 @@ export async function createBooking(
   checkOut: string,
   jumlahOrang: number,
 ) {
-  const [result] = await pool.query<ResultSetHeader>(
+  const result = await pool.query(
     `
     INSERT INTO booking
     (
@@ -40,42 +39,42 @@ export async function createBooking(
       jumlah_orang,
       status
     )
-    VALUES (?,?,?,?,?,'pending')
+    VALUES ($1,$2,$3,$4,$5,'pending')
+    RETURNING id
     `,
     [userId, layananId, checkIn, checkOut, jumlahOrang],
   );
 
-  return result.insertId;
+  return result.rows[0].id;
 }
 
 export async function getBookingsByUser(userId: number) {
-  const [rows] = await pool.query<Booking[]>(
+  const result = await pool.query<Booking>(
     `
     SELECT
       b.*,
       l.nama AS nama_layanan,
       l.slug AS layanan_slug
-      
     FROM booking b
     JOIN layanan_villa l
       ON l.id = b.layanan_id
-    WHERE b.user_id=?
+    WHERE b.user_id=$1
     ORDER BY b.created_at DESC
     `,
     [userId],
   );
 
-  return rows;
+  return result.rows;
 }
 
 export async function getAllBookings() {
-  const [rows] = await pool.query<Booking[]>(
+  const result = await pool.query<Booking>(
     `
     SELECT
       b.*,
       u.nama AS nama_user,
       l.nama AS nama_layanan,
-      1.slug AS layanan_slug
+      l.slug AS layanan_slug
     FROM booking b
     JOIN users u
       ON u.id=b.user_id
@@ -85,7 +84,7 @@ export async function getAllBookings() {
     `,
   );
 
-  return rows;
+  return result.rows;
 }
 
 export async function updateBookingStatus(
@@ -95,8 +94,8 @@ export async function updateBookingStatus(
   await pool.query(
     `
     UPDATE booking
-    SET status=?
-    WHERE id=?
+    SET status=$1
+    WHERE id=$2
     `,
     [status, id],
   );
@@ -106,7 +105,7 @@ export async function deleteBooking(id: number) {
   await pool.query(
     `
     DELETE FROM booking
-    WHERE id=?
+    WHERE id=$1
     `,
     [id],
   );

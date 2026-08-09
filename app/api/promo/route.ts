@@ -1,18 +1,17 @@
 import { pool } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
 
 // Ambil semua promo
 export async function GET() {
-  const [rows] = await pool.query(
-    `SELECT p.id, l.slug AS paketSlug, p.judul, p.deskripsi,
-            p.diskon_persen AS diskonPersen, p.aktif,
-            p.tanggal_mulai AS tanggalMulai, p.tanggal_selesai AS tanggalSelesai
+  const result = await pool.query(
+    `SELECT p.id, l.slug AS "paketSlug", p.judul, p.deskripsi,
+            p.diskon_persen AS "diskonPersen", p.aktif,
+            p.tanggal_mulai AS "tanggalMulai", p.tanggal_selesai AS "tanggalSelesai"
      FROM promo p
      JOIN layanan_villa l ON p.layanan_id = l.id
      ORDER BY p.id DESC`,
   );
-  return NextResponse.json(rows);
+  return NextResponse.json(result.rows);
 }
 
 // Tambah promo baru
@@ -28,23 +27,24 @@ export async function POST(req: NextRequest) {
     tanggalSelesai,
   } = body;
 
-  const [paketRows] = await pool.query<RowDataPacket[]>(
-    "SELECT id FROM layanan_villa WHERE slug = ?",
+  const paketResult = await pool.query(
+    "SELECT id FROM layanan_villa WHERE slug = $1",
     [paketSlug],
   );
 
-  if (paketRows.length === 0) {
+  if (paketResult.rows.length === 0) {
     return NextResponse.json(
       { error: "Paket tidak ditemukan" },
       { status: 400 },
     );
   }
 
-  const layananId = paketRows[0].id;
+  const layananId = paketResult.rows[0].id;
 
-  const [result] = await pool.query<ResultSetHeader>(
+  const result = await pool.query(
     `INSERT INTO promo (layanan_id, judul, deskripsi, diskon_persen, aktif, tanggal_mulai, tanggal_selesai)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id`,
     [
       layananId,
       judul,
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   );
 
   return NextResponse.json({
-    id: result.insertId,
+    id: result.rows[0].id,
     paketSlug,
     judul,
     deskripsi,

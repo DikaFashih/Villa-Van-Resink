@@ -18,6 +18,15 @@ interface Booking {
     | "dibatalkan";
 }
 
+interface Paket {
+  id: number;
+  nama: string;
+  slug: string;
+  kategori: string;
+  harga: number;
+  deskripsi: string;
+}
+
 const badge: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
   diproses: "bg-blue-100 text-blue-700",
@@ -27,22 +36,18 @@ const badge: Record<string, string> = {
   dibatalkan: "bg-gray-100 text-gray-700",
 };
 
-const paketOptions = [
-  { id: 1, nama: "Paket Wisata Harian" },
-  { id: 2, nama: "Paket Menginap" },
-  { id: 3, nama: "Paket Wedding & Event" },
-  { id: 4, nama: "Paket Study Tour" },
-];
-
 export default function UserBookingTab() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [paketOptions, setPaketOptions] = useState<Paket[]>([]);
+  const [paketLoading, setPaketLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const [layananId, setLayananId] = useState(paketOptions[0].id);
+  const [layananId, setLayananId] = useState<number | null>(null);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [jumlahOrang, setJumlahOrang] = useState(1);
@@ -59,13 +64,35 @@ export default function UserBookingTab() {
     }
   }
 
+  async function loadPaket() {
+    try {
+      const res = await fetch("/api/layanan");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const onlyPaket = data.filter(
+          (item: Paket) => item.kategori === "paket",
+        );
+        setPaketOptions(onlyPaket);
+        if (onlyPaket.length > 0) setLayananId(onlyPaket[0].id);
+      }
+    } finally {
+      setPaketLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadBookings();
+    loadPaket();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError("");
+
+    if (!layananId) {
+      setFormError("Pilih paket terlebih dahulu.");
+      return;
+    }
 
     if (!checkIn || !checkOut) {
       setFormError("Tanggal check-in dan check-out wajib diisi.");
@@ -145,17 +172,23 @@ export default function UserBookingTab() {
             <label className="mb-1 block text-sm font-medium text-neutral-700">
               Pilih Paket
             </label>
-            <select
-              value={layananId}
-              onChange={(e) => setLayananId(Number(e.target.value))}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2"
-            >
-              {paketOptions.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nama}
-                </option>
-              ))}
-            </select>
+            {paketLoading ? (
+              <p className="text-sm text-neutral-500">Memuat daftar paket...</p>
+            ) : paketOptions.length === 0 ? (
+              <p className="text-sm text-red-600">Belum ada paket tersedia.</p>
+            ) : (
+              <select
+                value={layananId ?? ""}
+                onChange={(e) => setLayananId(Number(e.target.value))}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2"
+              >
+                {paketOptions.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

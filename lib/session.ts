@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { pool } from "@/lib/db";
-import { RowDataPacket } from "mysql2";
 
 const COOKIE_NAME = "vvr_session";
 
@@ -36,7 +35,7 @@ export async function getSessionUserId() {
   return Number(value.value);
 }
 
-interface SessionUser extends RowDataPacket {
+interface SessionUser {
   id: number;
   nama: string;
   email: string;
@@ -48,7 +47,7 @@ export async function getSessionUser() {
 
   if (!userId) return null;
 
-  const [rows] = await pool.query<SessionUser[]>(
+  const result = await pool.query<SessionUser>(
     `
     SELECT
       id,
@@ -56,12 +55,11 @@ export async function getSessionUser() {
       email,
       role
     FROM users
-    WHERE id=?
+    WHERE id=$1
     LIMIT 1
     `,
-    [userId]
+    [userId],
   );
 
-  return rows.length ? rows[0] : null;
+  return result.rows.length ? result.rows[0] : null;
 }
-

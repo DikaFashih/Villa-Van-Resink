@@ -1,32 +1,29 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getSessionUserId } from "@/lib/session";
-import { RowDataPacket } from "mysql2";
 
 export async function GET() {
-
   const userId = await getSessionUserId();
 
   if (!userId) {
     return NextResponse.json({
-      authenticated:false
+      authenticated: false,
     });
   }
 
-  const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT id,nama,email,role FROM users WHERE id=?",
-    [userId]
+  const result = await pool.query(
+    "SELECT id,nama,email,role FROM users WHERE id=$1",
+    [userId],
   );
 
-  if (!rows.length) {
+  if (!result.rows.length) {
     return NextResponse.json({
-      authenticated:false
+      authenticated: false,
     });
   }
 
   return NextResponse.json({
-    authenticated:true,
-    user:rows[0]
+    authenticated: true,
+    user: result.rows[0],
   });
-
 }

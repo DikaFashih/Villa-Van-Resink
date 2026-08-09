@@ -1,25 +1,24 @@
 import { pool } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { ResultSetHeader } from "mysql2";
 
 export async function GET() {
   try {
-    const [rows] = await pool.query(`
+    const result = await pool.query(`
       SELECT
         q.id,
-        q.user_id AS userId,
-        u.nama AS userNama,
+        q.user_id AS "userId",
+        u.nama AS "userNama",
         q.pertanyaan,
         q.jawaban,
         q.status,
-        q.created_at AS createdAt
+        q.created_at AS "createdAt"
       FROM questions q
       JOIN users u
         ON u.id = q.user_id
       ORDER BY q.created_at DESC
     `);
 
-    return NextResponse.json(rows);
+    return NextResponse.json(result.rows);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -33,7 +32,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const [result] = await pool.query<ResultSetHeader>(
+    const result = await pool.query(
       `
       INSERT INTO questions
       (
@@ -42,7 +41,8 @@ export async function POST(req: NextRequest) {
         status
       )
       VALUES
-      (?, ?, 'pending')
+      ($1, $2, 'pending')
+      RETURNING id
       `,
       [
         body.userId,
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({
-      id: result.insertId,
+      id: result.rows[0].id,
       success: true,
     });
 

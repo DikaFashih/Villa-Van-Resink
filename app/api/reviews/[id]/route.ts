@@ -1,6 +1,5 @@
 import { pool } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { ResultSetHeader } from "mysql2";
 
 interface Context {
   params: Promise<{
@@ -16,11 +15,11 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
-    await pool.query<ResultSetHeader>(
+    await pool.query(
       `
       UPDATE reviews
-      SET status = ?
-      WHERE id = ?
+      SET status = $1
+      WHERE id = $2
       `,
       [
         body.status,
@@ -56,10 +55,10 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await pool.query<ResultSetHeader>(
+    await pool.query(
       `
       DELETE FROM reviews
-      WHERE id = ?
+      WHERE id = $1
       `,
       [
         id,

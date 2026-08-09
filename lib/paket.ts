@@ -1,7 +1,6 @@
 import { pool } from "@/lib/db";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
 
-export interface Paket extends RowDataPacket {
+export interface Paket {
   id: number;
   nama: string;
   slug: string;
@@ -12,7 +11,7 @@ export interface Paket extends RowDataPacket {
 }
 
 export async function getAllPaket() {
-  const [rows] = await pool.query<Paket[]>(
+  const result = await pool.query<Paket>(
     `
     SELECT *
     FROM layanan_villa
@@ -21,35 +20,35 @@ export async function getAllPaket() {
     `
   );
 
-  return rows;
+  return result.rows;
 }
 
 export async function getPaketById(id: number) {
-  const [rows] = await pool.query<Paket[]>(
+  const result = await pool.query<Paket>(
     `
     SELECT *
     FROM layanan_villa
-    WHERE id = ?
+    WHERE id = $1
     LIMIT 1
     `,
     [id]
   );
 
-  return rows.length ? rows[0] : null;
+  return result.rows.length ? result.rows[0] : null;
 }
 
 export async function getPaketBySlug(slug: string) {
-  const [rows] = await pool.query<Paket[]>(
+  const result = await pool.query<Paket>(
     `
     SELECT *
     FROM layanan_villa
-    WHERE slug = ?
+    WHERE slug = $1
     LIMIT 1
     `,
     [slug]
   );
 
-  return rows.length ? rows[0] : null;
+  return result.rows.length ? result.rows[0] : null;
 }
 
 export async function createPaket(
@@ -59,7 +58,7 @@ export async function createPaket(
   harga: number,
   deskripsi: string
 ) {
-  const [result] = await pool.query<ResultSetHeader>(
+  const result = await pool.query(
     `
     INSERT INTO layanan_villa
     (
@@ -71,7 +70,8 @@ export async function createPaket(
       aktif
     )
     VALUES
-    (?,?,?,?,?,1)
+    ($1,$2,$3,$4,$5,1)
+    RETURNING id
     `,
     [
       nama,
@@ -82,7 +82,7 @@ export async function createPaket(
     ]
   );
 
-  return result.insertId;
+  return result.rows[0].id;
 }
 
 export async function updatePaket(
@@ -98,13 +98,13 @@ export async function updatePaket(
     `
     UPDATE layanan_villa
     SET
-      nama=?,
-      slug=?,
-      kategori=?,
-      harga=?,
-      deskripsi=?,
-      aktif=?
-    WHERE id=?
+      nama=$1,
+      slug=$2,
+      kategori=$3,
+      harga=$4,
+      deskripsi=$5,
+      aktif=$6
+    WHERE id=$7
     `,
     [
       nama,
@@ -122,7 +122,7 @@ export async function deletePaket(id: number) {
   await pool.query(
     `
     DELETE FROM layanan_villa
-    WHERE id=?
+    WHERE id=$1
     `,
     [id]
   );
