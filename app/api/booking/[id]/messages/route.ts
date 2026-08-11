@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMessagesForBooking, sendMessage } from "@/lib/messages";
+import {
+  attachSignedUrls,
+  getMessagesForBooking,
+  sendMessage,
+} from "@/lib/messages";
 import { getSessionUser } from "@/lib/session";
 
 export async function GET(
@@ -8,7 +12,8 @@ export async function GET(
 ) {
   const { id } = await params;
   const messages = await getMessagesForBooking(Number(id));
-  return NextResponse.json({ ok: true, messages });
+  const enriched = await attachSignedUrls(messages);
+  return NextResponse.json({ ok: true, messages: enriched });
 }
 
 export async function POST(
@@ -35,6 +40,7 @@ export async function POST(
 
   await sendMessage(Number(id), user.id, pesan.trim());
   const messages = await getMessagesForBooking(Number(id));
+  const enriched = await attachSignedUrls(messages);
 
-  return NextResponse.json({ ok: true, messages });
+  return NextResponse.json({ ok: true, messages: enriched });
 }

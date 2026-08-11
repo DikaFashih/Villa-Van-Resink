@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { MessageCircle, Trash2 } from "lucide-react";
+import ChatPanel from "@/components/ui/ChatPanel";
+import BookingCalendar from "@/components/BookingCalendar";
 
 type BookingStatus =
   | "pending"
@@ -42,6 +44,8 @@ const badge: Record<BookingStatus, string> = {
 export default function AdminBookingTab() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chatBookingId, setChatBookingId] = useState<number | null>(null);
+  const [adminId, setAdminId] = useState<number | null>(null);
 
   async function loadBookings() {
     try {
@@ -55,6 +59,13 @@ export default function AdminBookingTab() {
 
   useEffect(() => {
     loadBookings();
+
+    async function loadAdmin() {
+      const res = await fetch("/api/auth/session", { credentials: "include" });
+      const data = await res.json();
+      if (data.authenticated) setAdminId(data.user.id);
+    }
+    loadAdmin();
   }, []);
 
   async function changeStatus(id: number, status: BookingStatus) {
@@ -78,9 +89,7 @@ export default function AdminBookingTab() {
 
   if (loading) {
     return (
-      <div className="rounded-xl bg-white p-8 shadow-sm">
-        Memuat booking...
-      </div>
+      <div className="rounded-xl bg-white p-8 shadow-sm">Memuat booking...</div>
     );
   }
 
@@ -89,6 +98,10 @@ export default function AdminBookingTab() {
       <h2 className="mb-6 text-2xl font-semibold text-[#23412D]">
         Manajemen Booking
       </h2>
+
+      <div className="mb-6">
+        <BookingCalendar />
+      </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
@@ -116,10 +129,7 @@ export default function AdminBookingTab() {
                   <select
                     value={b.status}
                     onChange={(e) =>
-                      changeStatus(
-                        b.id,
-                        e.target.value as BookingStatus
-                      )
+                      changeStatus(b.id, e.target.value as BookingStatus)
                     }
                     className={`rounded-md px-2 py-1 ${badge[b.status]}`}
                   >
@@ -131,12 +141,20 @@ export default function AdminBookingTab() {
                   </select>
                 </td>
                 <td className="px-3 py-4 text-center">
-                  <button
-                    onClick={() => removeBooking(b.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => setChatBookingId(b.id)}
+                      className="text-[#23412D] hover:text-[#1b3323]"
+                    >
+                      <MessageCircle size={18} />
+                    </button>
+                    <button
+                      onClick={() => removeBooking(b.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -149,6 +167,14 @@ export default function AdminBookingTab() {
           </p>
         )}
       </div>
+
+      {chatBookingId !== null && adminId !== null && (
+        <ChatPanel
+          bookingId={chatBookingId}
+          currentUserId={adminId}
+          onClose={() => setChatBookingId(null)}
+        />
+      )}
     </div>
   );
 }

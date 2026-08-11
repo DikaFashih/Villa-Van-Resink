@@ -7,6 +7,7 @@ export interface Booking {
   check_in: string;
   check_out: string;
   jumlah_orang: number;
+  bukti_url?: string | null;
   status:
     | "pending"
     | "diproses"
@@ -21,6 +22,39 @@ export interface Booking {
   layanan_slug?: string;
 }
 
+export interface BookedRange {
+  check_in: string;
+  check_out: string;
+}
+
+export async function getBookedDateRanges() {
+  const result = await pool.query<BookedRange>(
+    `
+    SELECT check_in, check_out
+    FROM booking
+    WHERE status NOT IN ('ditolak', 'dibatalkan')
+    ORDER BY check_in ASC
+    `,
+  );
+
+  return result.rows;
+}
+
+export async function isDateRangeAvailable(checkIn: string, checkOut: string) {
+  const result = await pool.query(
+    `
+    SELECT COUNT(*)::int AS count
+    FROM booking
+    WHERE status NOT IN ('ditolak', 'dibatalkan')
+      AND check_in <= $2
+      AND check_out >= $1
+    `,
+    [checkIn, checkOut],
+  );
+
+  return result.rows[0].count === 0;
+}
+
 export async function createBooking(
   userId: number,
   layananId: number,
@@ -28,6 +62,12 @@ export async function createBooking(
   checkOut: string,
   jumlahOrang: number,
 ) {
+  const available = await isDateRangeAvailable(checkIn, checkOut);
+
+  if (!available) {
+    throw new Error("TANGGAL_TIDAK_TERSEDIA");
+  }
+
   const result = await pool.query(
     `
     INSERT INTO booking
@@ -109,4 +149,17 @@ export async function deleteBooking(id: number) {
     `,
     [id],
   );
+}
+
+export async function getBookingById(id: number) {
+  const result = await pool.query<Booking>(
+    `SELECT * FROM booking WHERE id=$1`,
+    [id],
+  );
+
+  return result.rows[0] || null;
+}
+
+export async function setBuktiUrl(id: number, path: string) {
+  await pool.query(`UPDATE booking SET bukti_url=$1 WHERE id=$2`, [path, id]);
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, MessageCircle, Plus } from "lucide-react";
 import ChatPanel from "@/components/ui/ChatPanel";
 import DetailModal from "@/components/ui/DetailModal";
-import { getCurrentUser } from "@/lib/auth";
+import BookingCalendar from "@/components/BookingCalendar";
 
 interface Booking {
   id: number;
@@ -55,9 +55,9 @@ export default function UserBookingTab() {
   const [checkOut, setCheckOut] = useState("");
   const [jumlahOrang, setJumlahOrang] = useState(1);
 
-  const [activeChatBookingId, setActiveChatBookingId] = useState<number | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [activeDetailBooking, setActiveDetailBooking] = useState<Booking | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [chatBookingId, setChatBookingId] = useState<number | null>(null);
+  const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
 
   async function loadBookings() {
     try {
@@ -87,12 +87,20 @@ export default function UserBookingTab() {
     }
   }
 
+  async function loadUser() {
+    try {
+      const res = await fetch("/api/auth/session", { credentials: "include" });
+      const data = await res.json();
+      if (data.authenticated) setUserId(data.user.id);
+    } catch {
+      // ignore
+    }
+  }
+
   useEffect(() => {
     loadBookings();
     loadPaket();
-    getCurrentUser().then((u) => {
-      if (u) setCurrentUserId(u.id);
-    });
+    loadUser();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -201,11 +209,19 @@ export default function UserBookingTab() {
             )}
           </div>
 
+          <div>
+            <label className="mb-1 block text-sm font-medium text-neutral-700">
+              Cek Tanggal Tersedia
+            </label>
+            <BookingCalendar />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-neutral-700">
                 Check-in
               </label>
+
               <input
                 type="date"
                 value={checkIn}
@@ -287,13 +303,13 @@ export default function UserBookingTab() {
 
           <div className="mt-6 flex gap-3">
             <button
-              onClick={() => setActiveDetailBooking(booking)}
+              onClick={() => setDetailBooking(booking)}
               className="rounded-lg bg-[#23412D] px-5 py-2 text-white hover:bg-[#1b3323]"
             >
               Detail
             </button>
             <button
-              onClick={() => setActiveChatBookingId(booking.id)}
+              onClick={() => setChatBookingId(booking.id)}
               className="flex items-center gap-2 rounded-lg border px-5 py-2 hover:bg-neutral-50"
             >
               <MessageCircle size={18} />
@@ -302,6 +318,21 @@ export default function UserBookingTab() {
           </div>
         </div>
       ))}
+
+      {chatBookingId !== null && userId !== null && (
+        <ChatPanel
+          bookingId={chatBookingId}
+          currentUserId={userId}
+          onClose={() => setChatBookingId(null)}
+        />
+      )}
+
+      {detailBooking && (
+        <DetailModal
+          booking={detailBooking}
+          onClose={() => setDetailBooking(null)}
+        />
+      )}
     </div>
   );
 }

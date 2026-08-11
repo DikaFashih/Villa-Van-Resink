@@ -8,16 +8,16 @@ export async function GET() {
         p.id,
         p.judul,
         p.deskripsi,
-        p.diskon_persen AS diskon,
-        p.tanggal_selesai AS tanggalSelesai,
-        l.slug AS paketSlug
+        p.diskon_persen AS "diskon",
+        p.tanggal_selesai AS "tanggalSelesai",
+        l.slug AS "paketSlug"
       FROM promo p
       JOIN layanan_villa l
         ON l.id = p.layanan_id
       WHERE
         p.aktif = 1
-        AND CURDATE() >= p.tanggal_mulai
-        AND CURDATE() <= p.tanggal_selesai
+        AND CURRENT_DATE >= p.tanggal_mulai
+        AND CURRENT_DATE <= p.tanggal_selesai
       ORDER BY p.diskon_persen DESC
       LIMIT 1
     `);

@@ -9,6 +9,7 @@ import Container from "../ui/Container";
 import { Button } from "../ui/Button";
 
 import { getCurrentUser, subscribeToAuth, type AuthUser } from "@/lib/auth";
+import BookingCalendar from "@/components/BookingCalendar";
 
 const platformOTA = [
   {
@@ -46,12 +47,12 @@ export default function Booking() {
 
   const handleBookingClick = () => {
     if (!user) {
-      router.push("/login?redirect=/dashboard?tab=booking");
+      router.push("/login?redirect=/dashboard");
       return;
     }
 
     if (user.role === "user") {
-      router.push("/dashboard?tab=booking");
+      router.push("/dashboard");
     } else {
       router.push("/admin");
     }
@@ -131,6 +132,13 @@ export default function Booking() {
             <ShieldCheck size={14} />
             Booking langsung memerlukan akun.
           </div>
+        </div>
+
+        <div className="mx-auto mt-10 flex max-w-md flex-col items-center">
+          <h4 className="mb-4 text-center font-heading text-2xl text-[#D4AF37]">
+            Cek Ketersediaan Tanggal
+          </h4>
+          <BookingCalendar />
         </div>
 
         <motion.div

@@ -64,9 +64,9 @@ export default function DetailModal({
           <div className="flex items-start gap-3">
             <CalendarDays size={18} className="mt-0.5 text-[#8A6E4A]" />
             <div>
-              <p className="text-xs text-neutral-500">Check-in — Check-out</p>
+              <p className="text-xs text-neutral-500">Check-in - Check-out</p>
               <p className="font-medium text-[#23412D]">
-                {formatTanggal(booking.check_in)} —{" "}
+                {formatTanggal(booking.check_in)} -{" "}
                 {formatTanggal(booking.check_out)}
               </p>
             </div>

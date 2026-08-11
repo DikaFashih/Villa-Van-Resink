@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, X } from "lucide-react";
+import { Image as ImageIcon, Send, X } from "lucide-react";
 
 interface Message {
   id: number;
@@ -10,6 +10,7 @@ interface Message {
   sender_nama: string;
   sender_role: "user" | "admin" | "superadmin";
   pesan: string;
+  attachment_signed_url?: string | null;
   created_at: string;
 }
 
@@ -26,7 +27,9 @@ export default function ChatPanel({
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadMessages() {
     try {
@@ -69,6 +72,35 @@ export default function ChatPanel({
     }
   }
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`/api/booking/${bookingId}/messages/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        setMessages(data.messages);
+      } else {
+        alert(data.error || "Gagal mengirim foto.");
+      }
+    } catch {
+      alert("Gagal mengirim foto.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="flex h-[80vh] w-full max-w-md flex-col rounded-2xl bg-white shadow-xl">
@@ -84,7 +116,9 @@ export default function ChatPanel({
 
         <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
           {loading && (
-            <p className="text-center text-sm text-neutral-400">Memuat chat...</p>
+            <p className="text-center text-sm text-neutral-400">
+              Memuat chat...
+            </p>
           )}
 
           {!loading && messages.length === 0 && (
@@ -112,7 +146,23 @@ export default function ChatPanel({
                       {m.sender_nama}
                     </p>
                   )}
-                  <p>{m.pesan}</p>
+                  {m.attachment_signed_url ? (
+                    <a
+                      href={m.attachment_signed_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={m.attachment_signed_url}
+                        alt="Bukti transfer"
+                        className="max-h-60 rounded-lg"
+                      />
+                    </a>
+                  ) : (
+                    <p className={isMine ? "!text-white" : "!text-neutral-800"}>
+                      {m.pesan}
+                    </p>
+                  )}
                 </div>
               </div>
             );
@@ -124,6 +174,21 @@ export default function ChatPanel({
           onSubmit={handleSend}
           className="flex items-center gap-2 border-t border-neutral-200 p-3"
         >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center rounded-full border border-neutral-300 p-2.5 text-neutral-600 hover:bg-neutral-100 disabled:opacity-50"
+          >
+            <ImageIcon size={16} />
+          </button>
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}

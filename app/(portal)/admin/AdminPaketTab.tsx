@@ -42,7 +42,13 @@ export default function AdminPaketTab() {
   }, []);
 
   function resetForm() {
-    setForm({ nama: "", slug: "", kategori: "wahana", harga: "", deskripsi: "" });
+    setForm({
+      nama: "",
+      slug: "",
+      kategori: "wahana",
+      harga: "",
+      deskripsi: "",
+    });
     setEditingId(null);
     setShowForm(false);
   }
@@ -105,7 +111,9 @@ export default function AdminPaketTab() {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-[#23412D]">Daftar Wahana & Paket</h2>
+        <h2 className="text-2xl font-semibold text-[#23412D]">
+          Daftar Wahana & Paket
+        </h2>
 
         <button
           onClick={() => {
@@ -140,7 +148,12 @@ export default function AdminPaketTab() {
           />
           <select
             value={form.kategori}
-            onChange={(e) => setForm({ ...form, kategori: e.target.value as Layanan["kategori"] })}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                kategori: e.target.value as Layanan["kategori"],
+              })
+            }
             className="rounded-md border p-2 text-sm"
           >
             <option value="wahana">Wahana</option>
@@ -163,10 +176,17 @@ export default function AdminPaketTab() {
           />
 
           <div className="flex gap-2 sm:col-span-2">
-            <button type="submit" className="rounded-md bg-[#23412D] px-4 py-2 text-sm text-white">
+            <button
+              type="submit"
+              className="rounded-md bg-[#23412D] px-4 py-2 text-sm text-white"
+            >
               {editingId ? "Simpan Perubahan" : "Simpan"}
             </button>
-            <button type="button" onClick={resetForm} className="rounded-md border px-4 py-2 text-sm">
+            <button
+              type="button"
+              onClick={resetForm}
+              className="rounded-md border px-4 py-2 text-sm"
+            >
               Batal
             </button>
           </div>
@@ -188,21 +208,34 @@ export default function AdminPaketTab() {
             {items.map((item) => (
               <tr key={item.id} className="border-b">
                 <td className="px-3 py-4">
-                  <span className={`rounded-full px-2 py-1 text-xs capitalize ${kategoriBadge[item.kategori] ?? "bg-neutral-100 text-neutral-600"}`}>
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs capitalize ${kategoriBadge[item.kategori] ?? "bg-neutral-100 text-neutral-600"}`}
+                  >
                     {item.kategori}
                   </span>
                 </td>
-                <td className="px-3 py-4 font-medium text-[#23412D]">{item.nama}</td>
+                <td className="px-3 py-4 font-medium text-[#23412D]">
+                  {item.nama}
+                </td>
                 <td className="px-3 py-4 text-neutral-500">{item.slug}</td>
                 <td className="px-3 py-4 font-medium text-[#23412D]">
-                  Rp {item.harga.toLocaleString("id-ID")}
+                  Rp{" "}
+                  {item.harga != null
+                    ? item.harga.toLocaleString("id-ID")
+                    : "-"}
                 </td>
                 <td className="px-3 py-4">
                   <div className="flex justify-center gap-3">
-                    <button onClick={() => startEdit(item)} className="text-blue-600 hover:text-blue-800">
+                    <button
+                      onClick={() => startEdit(item)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
                       <Pencil size={16} />
                     </button>
-                    <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-800">
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -213,7 +246,9 @@ export default function AdminPaketTab() {
         </table>
 
         {items.length === 0 && (
-          <p className="py-6 text-center text-neutral-500">Belum ada wahana/paket.</p>
+          <p className="py-6 text-center text-neutral-500">
+            Belum ada wahana/paket.
+          </p>
         )}
       </div>
     </div>
