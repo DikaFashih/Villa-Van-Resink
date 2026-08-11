@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { FileText, ShieldCheck } from "lucide-react";
 
 import Container from "../ui/Container";
-import { Button } from "../ui/Button";
+
 
 import { getCurrentUser, subscribeToAuth, type AuthUser } from "@/lib/auth";
 import BookingCalendar from "@/components/BookingCalendar";
