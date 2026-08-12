@@ -100,6 +100,7 @@ export default function UserBookingTab() {
   useEffect(() => {
     loadBookings();
     loadPaket();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadUser();
   }, []);
 

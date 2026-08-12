@@ -20,6 +20,7 @@ export interface Booking {
   nama_layanan?: string;
   nama_user?: string;
   layanan_slug?: string;
+  has_unread?: boolean;
 }
 
 export interface BookedRange {
@@ -114,12 +115,21 @@ export async function getAllBookings() {
       b.*,
       u.nama AS nama_user,
       l.nama AS nama_layanan,
-      l.slug AS layanan_slug
+      l.slug AS layanan_slug,
+      COALESCE(latest.sender_role = 'user', false) AS has_unread
     FROM booking b
     JOIN users u
       ON u.id=b.user_id
     JOIN layanan_villa l
       ON l.id=b.layanan_id
+    LEFT JOIN LATERAL (
+      SELECT u2.role AS sender_role
+      FROM booking_messages m
+      JOIN users u2 ON u2.id = m.sender_id
+      WHERE m.booking_id = b.id
+      ORDER BY m.created_at DESC
+      LIMIT 1
+    ) latest ON true
     ORDER BY b.created_at DESC
     `,
   );

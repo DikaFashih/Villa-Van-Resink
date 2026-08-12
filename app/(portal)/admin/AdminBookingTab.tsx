@@ -21,6 +21,7 @@ interface Booking {
   check_out: string;
   jumlah_orang: number;
   status: BookingStatus;
+  has_unread?: boolean;
 }
 
 const STATUS: BookingStatus[] = [
@@ -144,9 +145,12 @@ export default function AdminBookingTab() {
                   <div className="flex items-center justify-center gap-3">
                     <button
                       onClick={() => setChatBookingId(b.id)}
-                      className="text-[#23412D] hover:text-[#1b3323]"
+                      className="relative text-[#23412D] hover:text-[#1b3323]"
                     >
                       <MessageCircle size={18} />
+                      {b.has_unread && (
+                        <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                      )}
                     </button>
                     <button
                       onClick={() => removeBooking(b.id)}
