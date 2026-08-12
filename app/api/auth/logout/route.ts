@@ -8,12 +8,9 @@ export async function POST() {
     ok: true,
   });
 
-  response.cookies.set("vvr_session", "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+  response.cookies.delete({
+    name: "vvr_session",
     path: "/",
-    maxAge: 0,
   });
 
   return response;

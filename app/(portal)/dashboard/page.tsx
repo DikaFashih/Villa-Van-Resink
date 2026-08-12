@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { getCurrentUser, type AuthUser } from "@/lib/auth";
 
 import UserBookingTab from "./UserBookingTab";
@@ -16,9 +16,17 @@ export default function DashboardPage() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleLogout = () => {
-    router.push("/login");
-  };
+  const handleLogout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // ignore
+    }
+    router.push("/booking");
+  }, [router]);
 
   useEffect(() => {
     async function loadUser() {
@@ -47,7 +55,7 @@ export default function DashboardPage() {
       );
       if (idleTimer.current) clearTimeout(idleTimer.current);
     };
-  }, []);
+  }, [handleLogout]);
 
   if (!user) {
     return (
@@ -60,7 +68,15 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#F8F6F1]">
       <div className="mx-auto max-w-7xl p-8">
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push("/booking")}
+            className="flex items-center gap-2 text-sm font-medium text-[#23412D] hover:text-[#8A6E4A]"
+          >
+            <ArrowLeft size={16} />
+            Kembali
+          </button>
+
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
