@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 import { getBookingById, setBuktiUrl } from "@/lib/booking";
 import { getSessionUser } from "@/lib/session";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
   request: NextRequest,
@@ -69,6 +69,8 @@ export async function POST(
         { status: 400 },
       );
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -137,6 +139,8 @@ export async function GET(
       );
     }
 
+    const supabaseAdmin = getSupabaseAdmin();
+
     const { data, error } = await supabaseAdmin.storage
       .from("bukti-transfer")
       .createSignedUrl(booking.bukti_url, 60 * 5);
@@ -157,3 +161,4 @@ export async function GET(
     );
   }
 }
+

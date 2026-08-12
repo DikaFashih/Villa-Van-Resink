@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
-    "@supabase/supabase-js": "^2.112.2",
+    "@supabase/supabase-js": "^2.112.3",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

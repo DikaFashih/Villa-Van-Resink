@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 import {
   attachSignedUrls,
@@ -6,7 +6,7 @@ import {
   sendAttachmentMessage,
 } from "@/lib/messages";
 import { getSessionUser } from "@/lib/session";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export async function POST(
   request: NextRequest,
@@ -51,6 +51,8 @@ export async function POST(
       );
     }
 
+    const supabaseAdmin = getSupabaseAdmin();
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const ext = file.name.split(".").pop();
@@ -85,3 +87,4 @@ export async function POST(
     );
   }
 }
+

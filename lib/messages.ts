@@ -1,5 +1,5 @@
-import { pool } from "@/lib/db";
-import { supabaseAdmin } from "@/lib/supabase";
+﻿import { pool } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export interface BookingMessage {
   id: number;
@@ -51,6 +51,7 @@ export async function sendAttachmentMessage(
 }
 
 export async function attachSignedUrls(messages: BookingMessage[]) {
+  const supabaseAdmin = getSupabaseAdmin();
   const enriched = await Promise.all(
     messages.map(async (m) => {
       if (!m.attachment_url) return m;
@@ -65,3 +66,4 @@ export async function attachSignedUrls(messages: BookingMessage[]) {
 
   return enriched;
 }
+
