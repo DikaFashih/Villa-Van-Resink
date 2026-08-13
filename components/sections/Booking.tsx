@@ -7,7 +7,6 @@ import { FileText, ShieldCheck } from "lucide-react";
 
 import Container from "../ui/Container";
 
-
 import { getCurrentUser, subscribeToAuth, type AuthUser } from "@/lib/auth";
 import BookingCalendar from "@/components/BookingCalendar";
 
@@ -111,7 +110,7 @@ export default function Booking() {
               </div>
 
               <span className="mt-6 text-sm uppercase tracking-[0.15em] text-white/80">
-                Pesan Sekarang â†’
+                Pesan Sekarang →
               </span>
             </a>
           ))}
