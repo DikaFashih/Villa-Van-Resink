@@ -14,8 +14,16 @@ interface Promo {
   tanggalSelesai: string;
 }
 
+interface Layanan {
+  id: number;
+  nama: string;
+  slug: string;
+  kategori: string;
+}
+
 export default function AdminPromoTab() {
   const [items, setItems] = useState<Promo[]>([]);
+  const [layananOptions, setLayananOptions] = useState<Layanan[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -34,12 +42,31 @@ export default function AdminPromoTab() {
     setItems(Array.isArray(data) ? data : []);
   }
 
+  async function loadLayanan() {
+    const res = await fetch("/api/layanan");
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      setLayananOptions(data);
+      if (data.length > 0) {
+        setForm((f) => (f.paketSlug ? f : { ...f, paketSlug: data[0].slug }));
+      }
+    }
+  }
+
   useEffect(() => {
     load();
+    loadLayanan();
   }, []);
 
   function resetForm() {
-    setForm({ paketSlug: "", judul: "", deskripsi: "", diskonPersen: "", tanggalMulai: "", tanggalSelesai: "" });
+    setForm({
+      paketSlug: layananOptions.length > 0 ? layananOptions[0].slug : "",
+      judul: "",
+      deskripsi: "",
+      diskonPersen: "",
+      tanggalMulai: "",
+      tanggalSelesai: "",
+    });
     setEditingId(null);
     setShowForm(false);
   }
@@ -116,13 +143,24 @@ export default function AdminPromoTab() {
           onSubmit={handleSubmit}
           className="mb-6 grid gap-3 rounded-xl border border-neutral-200 p-5 sm:grid-cols-2"
         >
-          <input
-            placeholder="Slug Paket (mis. kolam-renang-air-hangat)"
-            required
-            value={form.paketSlug}
-            onChange={(e) => setForm({ ...form, paketSlug: e.target.value })}
-            className="rounded-md border p-2 text-sm sm:col-span-2"
-          />
+          {layananOptions.length === 0 ? (
+            <p className="text-sm text-red-600 sm:col-span-2">
+              Belum ada wahana/paket di sistem. Tambahkan dulu lewat menu Paket.
+            </p>
+          ) : (
+            <select
+              required
+              value={form.paketSlug}
+              onChange={(e) => setForm({ ...form, paketSlug: e.target.value })}
+              className="rounded-md border p-2 text-sm sm:col-span-2"
+            >
+              {layananOptions.map((l) => (
+                <option key={l.id} value={l.slug}>
+                  {l.nama} ({l.kategori})
+                </option>
+              ))}
+            </select>
+          )}
           <input
             placeholder="Judul Promo"
             required
@@ -149,7 +187,9 @@ export default function AdminPromoTab() {
             type="date"
             required
             value={form.tanggalSelesai}
-            onChange={(e) => setForm({ ...form, tanggalSelesai: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, tanggalSelesai: e.target.value })
+            }
             className="rounded-md border p-2 text-sm"
           />
           <textarea
@@ -160,10 +200,17 @@ export default function AdminPromoTab() {
           />
 
           <div className="flex gap-2 sm:col-span-2">
-            <button type="submit" className="rounded-md bg-[#23412D] px-4 py-2 text-sm text-white">
+            <button
+              type="submit"
+              className="rounded-md bg-[#23412D] px-4 py-2 text-sm text-white"
+            >
               {editingId ? "Simpan Perubahan" : "Simpan"}
             </button>
-            <button type="button" onClick={resetForm} className="rounded-md border px-4 py-2 text-sm">
+            <button
+              type="button"
+              onClick={resetForm}
+              className="rounded-md border px-4 py-2 text-sm"
+            >
               Batal
             </button>
           </div>
@@ -183,19 +230,29 @@ export default function AdminPromoTab() {
           <tbody>
             {items.map((p) => (
               <tr key={p.id} className="border-b">
-                <td className="px-3 py-4 font-medium text-[#23412D]">{p.judul}</td>
+                <td className="px-3 py-4 font-medium text-[#23412D]">
+                  {p.judul}
+                </td>
                 <td className="px-3 py-4 text-neutral-600">{p.deskripsi}</td>
                 <td className="px-3 py-4">
-                  <span className={`rounded-full px-2 py-1 text-xs ${p.aktif ? "bg-green-100 text-green-700" : "bg-neutral-200 text-neutral-600"}`}>
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs ${p.aktif ? "bg-green-100 text-green-700" : "bg-neutral-200 text-neutral-600"}`}
+                  >
                     {p.aktif ? "Aktif" : "Nonaktif"}
                   </span>
                 </td>
                 <td className="px-3 py-4">
                   <div className="flex justify-center gap-3">
-                    <button onClick={() => startEdit(p)} className="text-blue-600 hover:text-blue-800">
+                    <button
+                      onClick={() => startEdit(p)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
                       <Pencil size={16} />
                     </button>
-                    <button onClick={() => handleDelete(p.id)} className="text-red-600 hover:text-red-800">
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>

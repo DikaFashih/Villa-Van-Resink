@@ -95,16 +95,64 @@ export interface ActivePromo {
 export async function getActivePromo() {
   try {
     const res = await fetch("/api/promo/active");
-
     if (!res.ok) return null;
-
     const text = await res.text();
-
     if (!text) return null;
-
     return JSON.parse(text) as ActivePromo | null;
   } catch {
     return null;
   }
 }
 
+export interface PromoPopupItem {
+  id: string;
+  judul: string;
+  deskripsi: string;
+  diskon: number;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  paketSlug: string;
+  status: "aktif" | "besok";
+}
+
+export async function getPromoPopupList(): Promise<PromoPopupItem[]> {
+  try {
+    const all = await getAllPromo();
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+
+    const tomorrowDate = new Date(now);
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const tomorrow = tomorrowDate.toISOString().slice(0, 10);
+
+    const result: PromoPopupItem[] = [];
+
+    for (const p of all) {
+      if (!p.aktif) continue;
+      const isActiveNow = p.tanggalMulai <= today && today <= p.tanggalSelesai;
+      const startsTomorrow = p.tanggalMulai === tomorrow;
+
+      if (isActiveNow || startsTomorrow) {
+        result.push({
+          id: p.id,
+          judul: p.judul,
+          deskripsi: p.deskripsi,
+          diskon: p.diskonPersen,
+          tanggalMulai: p.tanggalMulai,
+          tanggalSelesai: p.tanggalSelesai,
+          paketSlug: p.paketSlug,
+          status: isActiveNow ? "aktif" : "besok",
+        });
+      }
+    }
+
+    result.sort((a, b) => {
+      if (a.status === b.status) return 0;
+      return a.status === "aktif" ? -1 : 1;
+    });
+
+    return result.slice(0, 5);
+  } catch {
+    return [];
+  }
+}
